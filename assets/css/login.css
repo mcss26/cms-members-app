@@ -1,0 +1,126 @@
+/* =========================================================================
+   LOGIN PAGE STYLES (Ultra Minimalist / Swiss Brutalism)
+   ========================================================================= */
+
+body.login {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0a0a0a; /* Dark Zinc */
+  font-family: var(--font-mono); /* Monospace or stark sans */
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* Minimalist Wrapper */
+.login .login-wrapper {
+  width: 100%;
+  max-width: 320px; /* Tighter width */
+  padding: 0 24px;
+}
+
+.login .card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* Typography Header */
+.login .header {
+  text-align: left;
+}
+
+.login h1 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-xl);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Form Styles */
+.login form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.login .auth-field {
+  position: relative;
+}
+
+.login .auth-field input {
+  width: 100%;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--neutral-600);
+  border-radius: 0;
+  padding: 0;
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-family: var(--font-mono);
+  transition: border-color var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.login .auth-field input::placeholder {
+  color: var(--text-placeholder);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+}
+
+.login .auth-field input:focus {
+  outline: none;
+  border-bottom-color: var(--text-primary);
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Submit Button */
+.login .btn-submit {
+  height: 44px;
+  width: 100%;
+  margin-top: 16px;
+  background: var(--text-primary);
+  color: var(--neutral-100);
+  border: none;
+  border-radius: 0;
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.login .btn-submit:hover {
+  background: var(--neutral-800);
+}
+
+.login .btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error Message */
+.login .error-message {
+  color: var(--danger);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  text-align: left;
+  min-height: 14px;
+}

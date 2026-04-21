@@ -1,0 +1,310 @@
+/* =========================================================================
+   1. TOKENS PRIMITIVOS (Global Raw Values) - ZINC PALETTE
+   ========================================================================= */
+:root {
+  /* Paleta Neutral (Zinc) */
+  --neutral-0: #000000;
+  --neutral-50: #050505;
+  --neutral-100: #0a0a0a;
+  --neutral-150: #111111;
+  --neutral-200: #18181b;
+  --neutral-300: #27272a;
+  --neutral-400: #3f3f46;
+  --neutral-500: #52525b;
+  --neutral-600: #71717a;
+  --neutral-700: #a1a1aa;
+  --neutral-800: #d4d4d8;
+  --neutral-900: #e4e4e7;
+  --neutral-950: #f4f4f5;
+  --neutral-1000: #ffffff;
+
+  /* Alpha (Transparencias sobre negro/blanco) */
+  --white-alpha-05: rgba(255, 255, 255, 0.05);
+  --white-alpha-08: rgba(255, 255, 255, 0.08);
+  --white-alpha-10: rgba(255, 255, 255, 0.1);
+  --white-alpha-20: rgba(255, 255, 255, 0.2);
+  --white-alpha-30: rgba(255, 255, 255, 0.3);
+  --white-alpha-50: rgba(255, 255, 255, 0.5);
+  --white-alpha-70: rgba(255, 255, 255, 0.7);
+  --black-alpha-20: rgba(0, 0, 0, 0.2);
+  --black-alpha-40: rgba(0, 0, 0, 0.4);
+  --black-alpha-60: rgba(0, 0, 0, 0.6);
+
+  /* Paleta Semántica Base */
+  --sky-400: #38bdf8;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --red-400: #f87171;
+  --red-500: #ff453a;
+  --red-600: #ff3b30;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --orange-400: #fb923c;
+  --orange-500: #f59e0b;
+  --yellow-400: #fbbf24;
+  --purple-400: #c084fc;
+  --purple-500: #a855f7;
+
+  /* Geometría */
+  --space-unit: 4px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-button: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* Tipografías base */
+  --font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Font Weights */
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Escala tipográfica */
+  --fs-xs: 10px;
+  --fs-sm: 11px;
+  --fs-md: 12px;
+  --fs-base: 13px;
+  --fs-lg: 14px;
+  --fs-xl: 16px;
+  --fs-2xl: 24px;
+  --fs-3xl: 40px;
+  --fs-4xl: 64px;
+  --lh-tight: 1.1;
+  --lh-normal: 1.4;
+  --lh-relaxed: 1.5;
+
+  /* Controles */
+  --control-h: 36px;
+  --control-h-sm: 28px;
+  --control-h-lg: 44px;
+}
+
+/* =========================================================================
+   2. TOKENS SEMÁNTICOS (Design Decisions) - ZINC SYSTEM
+   ========================================================================= */
+:root {
+  /* color-scheme: dark; -- Deshabilitado para permitir negro puro */
+
+  /* Brand & Estado */
+  --brand-primary: var(--neutral-1000); /* White for primary actions */
+  --accent: var(--neutral-1000); /* Primary accent (was red, now white) */
+  --accent-focus: var(--sky-400); /* Focus ring color for accessibility */
+  --danger: var(--red-400);
+  --success: var(--green-400);
+  --warning: var(--yellow-400);
+  --info: var(--blue-400);
+
+  /* Superficies (Negro sólido) */
+  --bg-body: #000000; /* Negro puro */
+  --bg-surface: #0a0a0a; /* var(--neutral-100) — user decision: swiss wins */
+  --bg-surface-hover: var(--neutral-150); /* #111111 */
+  --bg-elevated: var(--neutral-200); /* #18181b */
+  --backdrop: var(--black-alpha-60);
+
+  /* Tipografía */
+  --text-primary: var(--neutral-1000); /* #ffffff */
+  --text-secondary: #a1a1aa; /* user decision: swiss wins (was --neutral-800 #d4d4d8) */
+  --text-tertiary: var(--neutral-700); /* #a1a1aa */
+  --text-placeholder: #8a8a93; /* WCAG AA fix: 5.18:1 on #000 (was #71717a = 4.35:1) */
+
+  /* Bordes */
+  --border-subtle: var(--white-alpha-10);
+  --border-active: var(--white-alpha-20);
+  --border-highlight: var(--white-alpha-30);
+  --border-default: var(
+    --neutral-400
+  ); /* #3f3f46 — added: referenced in swiss-style.css */
+
+  /* Fondos de Estado */
+  --accent-success-bg: rgba(74, 222, 128, 0.1);
+  --accent-warning-bg: rgba(251, 191, 36, 0.1);
+  --accent-error-bg: rgba(248, 113, 113, 0.1);
+  --accent-info-bg: rgba(56, 189, 248, 0.1);
+
+  /* Transition */
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --topbar-height: 56px;
+  --header-height: 64px;
+
+  /* Spacing — CANONICAL (semantic scale, 8pt-based)
+     Canonical   │ Value │ Numeric Alias
+     ────────────┼───────┼─────────────
+     --space-xs  │  4px  │ --space-1
+     --space-sm  │  8px  │ --space-2
+     --space-3   │ 12px  │ (no semantic alias)
+     --space-md  │ 16px  │ --space-4
+     --space-lg  │ 24px  │ --space-6
+     --space-xl  │ 32px  │ --space-8   */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-3: 12px; /* NEW — fills gap between sm(8) and md(16) */
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Shadows — Multinivel SaaS (dark theme optimized) */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.25); /* retrocompat alias */
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.35), 0 16px 48px rgba(0, 0, 0, 0.25);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.4), 0 32px 64px rgba(0, 0, 0, 0.3);
+
+  /* Primary Aliases (used across 5+ files)
+     --primary       → 12 refs | shorthand for --brand-primary
+     --primary-hover → hover state for white buttons
+     --primary-light → light accent for highlights */
+  --primary: var(--brand-primary);
+  --primary-hover: var(--neutral-900);
+  --primary-light: var(--neutral-950);
+
+  /* Z-Index Hierarchy */
+  --z-base: 1;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-panel: 1000;
+  --z-toast: 1200;
+  --z-skip-link: 9999;
+  --z-progress: 10000;
+
+  /* ─── RETROCOMPAT ALIASES ─────────────────────────────────────────────
+     DO NOT REMOVE — embedded in 400+ references across 20+ files.
+     New code should prefer the CANONICAL name (left column).
+     These aliases exist for backward compatibility only.
+
+     MIGRATION STATUS (2026-02-21):
+     Canonical       │ Alias       │ Refs  │ Action
+     ────────────────┼─────────────┼───────┼──────────────────
+     --bg-body       │ --bg-base   │    6  │ migrate later
+     --bg-elevated   │ --bg-elev   │   18  │ migrate later
+     --white-alpha-05│ --surface-1 │   24  │ migrate later
+     --white-alpha-10│ --surface-2 │   17  │ migrate later
+     --text-primary  │ --text-1    │   61  │ migrate later
+     --text-secondary│ --text-2    │   42  │ migrate later
+     --text-tertiary │ --text-3    │   34  │ migrate later
+     --border-subtle │ --border-1  │   86  │ migrate later
+     --border-active │ --border-2  │   21  │ migrate later
+     --fs-sm         │ --text-sm   │    7  │ migrate later
+     --neutral-300   │ --bg-tert.  │    3  │ migrate later
+     --topbar-height │ --topbar-h  │    6  │ migrate later
+     ────────────────────────────────────────────────────────── */
+  --bg-base: var(--bg-body);
+  --bg-elev: var(--bg-elevated);
+  --surface-1: var(--white-alpha-05);
+  --surface-2: var(--white-alpha-10);
+  --text-1: var(--text-primary);
+  --text-2: var(--text-secondary);
+  --text-3: var(--text-tertiary);
+  --border-1: var(--border-subtle);
+  --border-2: var(--border-active);
+  --text-sm: var(--fs-sm);
+  --bg-tertiary: var(--neutral-300);
+  --topbar-h: var(--topbar-height);
+
+  /* ─── SPACING NUMERIC ALIASES (retrocompat) ───────────────────────────
+     Canonical: --space-xs/sm/3/md/lg/xl (semantic)
+     Numeric aliases for backward compatibility with existing code.
+
+     Numeric   │ Value │ Semantic Equivalent
+     ──────────┼───────┼────────────────────
+     --space-1 │  4px  │ --space-xs
+     --space-2 │  8px  │ --space-sm
+     --space-4 │ 16px  │ --space-md
+     --space-5 │ 20px  │ (no equivalent)
+     --space-6 │ 24px  │ --space-lg
+     --space-8 │ 32px  │ --space-xl
+     --space-12│ 48px  │ (extended)
+     --space-16│ 64px  │ (extended)
+     ──────────────────────────────────────── */
+  --space-1: var(--space-xs);
+  --space-2: var(--space-sm);
+  --space-4: var(--space-md);
+  --space-5: 20px;
+  --space-6: var(--space-lg);
+  --space-8: var(--space-xl);
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Brand: Midnight Club Gold */
+  --brand-gold: #e4d2a8;
+  --brand-gold-dark: #c9a96e;
+}
+
+/* =========================================================================
+   3. TOKENS DE COMPONENTE (Component-specific aliases)
+   ========================================================================= */
+:root {
+  /* Botones (Zinc: white primary) */
+  --btn-primary-bg: var(--brand-primary);
+  --btn-primary-text: var(--neutral-0); /* Black text on white button */
+  --btn-radius: var(--radius-md);
+
+  /* Cards */
+  --card-bg: var(--bg-surface);
+  --card-border: var(--border-subtle);
+  --card-radius: var(--radius-lg);
+  --card-shadow: var(--shadow-sm);
+  --card-shadow-hover: var(--shadow-md);
+
+  /* Modals */
+  --modal-shadow: var(--shadow-xl);
+
+  /* Dropdowns */
+  --dropdown-shadow: var(--shadow-lg);
+
+  /* Inputs */
+  --input-bg: var(--bg-surface);
+  --input-border: var(--border-subtle);
+  --input-radius: var(--radius-md);
+  --input-font: var(--font-sans);
+  --input-fs: var(--fs-base); /* 13px */
+  --input-lh: var(--lh-normal); /* 1.4 */
+  --input-h: var(--control-h); /* 36px */
+
+  /* Legacy Aurora Red — REMOVED 2026-02-21 (0 usages in production) */
+}
+
+/* =========================================================================
+   4. CHART TOKENS (Themed Chart.js rendering)
+   ========================================================================= */
+:root {
+  --chart-text: var(--text-tertiary);
+  --chart-grid: var(--white-alpha-05);
+  --chart-border: var(--white-alpha-08);
+  --chart-font: var(--font-mono);
+  --chart-line-1: var(--text-primary); /* Primary dataset */
+  --chart-line-2: var(--success); /* Secondary dataset */
+  --chart-line-3: var(--danger); /* Tertiary dataset */
+  --chart-line-4: var(--info); /* Quaternary dataset */
+  --chart-point-bg: var(--bg-surface); /* Point fill */
+  --chart-point-border: var(--text-primary); /* Point stroke */
+  --chart-fill: var(--white-alpha-05); /* Area fill */
+}
+
+/* =========================================================================
+   5. TOKENS ESPECÍFICOS (Print / QR)
+   ========================================================================= */
+:root {
+  --paper-mm: 80mm;
+  --pad-mm: 4mm;
+  --qr-mm: 35mm;
+  --gap-mm: 6mm;
+  --font-mm: 3.2mm;
+}

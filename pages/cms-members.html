@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+      script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.sheetjs.com;
+      style-src 'self' 'unsafe-inline';
+      connect-src 'self' ws: wss: https://iyknbgmcnbpvalvsjxjz.supabase.co https://cdn.jsdelivr.net;
+      img-src 'self' data:;
+      font-src 'self';
+      frame-src 'none';">
+  <meta name="theme-color" content="#000000">
+  <meta
+    name="description"
+    content="CMS de Miembros — gestion de membresias y datos de clientes"
+  />
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <title>CMS Members — Midnight</title>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/cms-members.css?v=2">
+</head>
+
+<body class="app-shell admin-shell admin-scroll cms-members"
+  data-allowed-roles="cmxmr,admin">
+
+  <!-- Skip Link (Accessibility) -->
+  <a href="#module-content" class="skip-link">Saltar al contenido principal</a>
+
+  
+
+  <main class="page-shell">
+    <div class="page-card-wrap">
+      <div class="page-card overflow-visible">
+
+
+        <!-- 1. Loading State -->
+        <div class="page-card-loading is-visible" id="page-card-loading">
+          <div class="state-block loading">
+            <div class="state-loader"></div>
+            <p class="state-title">Cargando datos...</p>
+            <p class="state-desc">Sincronizando solicitudes</p>
+          </div>
+        </div>
+
+
+
+        <!-- 3. Module Content -->
+        <div id="module-content" class="hidden">
+          <div class="staff-dashboard cms-dashboard">
+
+            <!-- Top Navigation (Exit Trap fix) -->
+            <div style="display: flex; justify-content: flex-end; padding-bottom: 24px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 32px;">
+              <button id="btn-logout" class="btn-ghost btn-sm faint" aria-label="Cerrar sesión">SALIR</button>
+            </div>
+
+            <!-- Dashboard Header (Golden Standard) -->
+            <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 32px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 32px; flex-wrap: wrap; gap: 24px;">
+              <div>
+                <h2 class="dashboard-title" style="font-size: 36px; letter-spacing: -0.02em;">CMS Members</h2>
+                <p class="dashboard-subtitle" style="margin-top: 8px;">Solicitudes, altas y cumpleaños</p>
+              </div>
+              <div class="actions-bar">
+                <!-- Tab Bar in actions-bar (Golden Standard) -->
+                <div class="tab-bar" style="border-bottom: none; gap: 16px;">
+                  <button class="tab-chip active" data-view="solicitudes" style="font-size: 14px;">Solicitudes</button>
+                  <button type="button" class="tab-chip" data-view="cumple" style="font-size: 14px;">Cumpleaños</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary Metrics (Bento Grid) -->
+            <div class="summary-metrics-container">
+              <div class="summary-metrics-grid">
+                <div class="summary-metric-card">
+                  <div class="summary-metric-label">TOTAL REGISTROS</div>
+                  <div class="summary-metric-value" id="count-total">0</div>
+                </div>
+                <div class="summary-metric-card">
+                  <div class="summary-metric-label">MIEMBROS ACTIVOS</div>
+                  <div class="summary-metric-value text-primary" id="count-activo">0</div>
+                </div>
+                <div class="summary-metric-card">
+                  <div class="summary-metric-label">PENDIENTES</div>
+                  <div class="summary-metric-value accent-yellow" id="count-pendiente-metric">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- VIEW: Solicitudes -->
+            <div id="view-solicitudes" class="view-container">
+
+              <!-- Filter Bar (Golden Standard: sku-filter-bar) -->
+              <div class="sku-filter-bar" aria-label="Filtros de solicitudes">
+                <div class="pill-group" id="status-pills">
+                  <button class="pill is-active" data-status="pendiente">Pendientes <span class="pill-count"
+                      id="count-pendiente">0</span></button>
+                  <button type="button" class="pill" data-status="activo">Activos <span class="pill-count"
+                      id="count-activo-pill">0</span></button>
+                  <button type="button" class="pill" data-status="rechazado">Rechazados <span class="pill-count"
+                      id="count-rechazado">0</span></button>
+                  <button type="button" class="pill" data-status="banned">Baneados <span class="pill-count"
+                      id="count-banned">0</span></button>
+                  <button type="button" class="pill" data-status="debug">Credenciales <span class="pill-count"
+                      id="count-debug">0</span></button>
+                  <button type="button" class="pill" data-status="all">Todos <span class="pill-count"
+                      id="count-total-pill">0</span></button>
+                </div>
+
+                <!-- Search (Golden Standard) -->
+                <div class="search-input-wrap">
+                  <svg class="search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="search" id="searchInput" class="input search-input" placeholder="Buscar por nombre..."
+                    aria-label="Buscar por nombre">
+                </div>
+              </div>
+
+              <!-- Instagram Bulk Tool (Minimalist details) -->
+              <details class="cms-bulk-details" aria-label="Herramienta de Instagram" style="border: 1px solid var(--neutral-800); padding: 16px; margin-top: 16px;">
+                <summary class="btn-ghost btn-sm faint" style="cursor: pointer; list-style: none;">[+] IG BULK TOOLS</summary>
+                <div class="bulk-content row-flex align-center gap-8 mt-16 pt-16" style="border-top: 1px solid var(--neutral-800);">
+                  <input type="number" id="instaFrom" class="input input-compact bulk-input-compact" placeholder="Desde" aria-label="Desde">
+                  <input type="number" id="instaTo" class="input input-compact bulk-input-compact" placeholder="Hasta" aria-label="Hasta">
+                  <button id="btnBulk" class="btn-secondary btn-sm" aria-label="Abrir Instagram en lote">EJECUTAR</button>
+                </div>
+              </details>
+
+              <!-- List -->
+              <div class="staff-list table-viewport table-shell cms-list" id="requestsList" role="list"
+                aria-label="Lista de solicitudes">
+                <!-- JS Injected Content -->
+              </div>
+              
+              <!-- Lazy Loading Sentinel -->
+              <div id="scroll-sentinel" class="hidden text-center faint text-sm font-mono" style="padding: 32px 0;">
+                ↓ CARGANDO MÁS ↓
+              </div>
+            </div>
+
+            <!-- VIEW: Cumpleaños -->
+            <div id="view-cumple" class="view-container hidden">
+              <div class="summary-metrics-grid birthday-metrics">
+                <div class="summary-metric-card border-green">
+                  <div class="summary-metric-label text-green">CUMPLES HOY</div>
+                  <div class="summary-metric-value text-green" id="birthday-today">-</div>
+                </div>
+                <div class="summary-metric-card border-neutral">
+                  <div class="summary-metric-label">ESTA SEMANA</div>
+                  <div class="summary-metric-value" id="count-cumple">0</div>
+                </div>
+              </div>
+              <div id="birthdayList" class="staff-list table-viewport table-shell cms-list" role="list"
+                aria-label="Lista de cumpleaños"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+
+
+  <!-- Scripts -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script defer src="../assets/js/core/config.js"></script>
+  <script defer src="../assets/js/core/supabase-client.js"></script>
+  <script defer src="../assets/js/core/utils.js"></script>
+  <script defer src="../assets/js/core/auth.js?v=2"></script>
+  <script defer src="../assets/js/core/toast.js"></script>
+  <script defer src="../assets/js/modules/cms-members.js?v=2"></script>
+  </body>
+
+</html>
