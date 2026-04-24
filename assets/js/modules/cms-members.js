@@ -628,45 +628,35 @@
     }
   }
 
-  let bulkQueue = [];
   function openBulkInstagrams() {
-    if (bulkQueue.length > 0) {
-      const handle = bulkQueue.shift();
-      window.open(`https://instagram.com/${encodeURIComponent(handle)}`, "_blank");
-      
-      if (bulkQueue.length > 0) {
-        refs.btnBulk.textContent = `Siguiente (${bulkQueue.length})`;
-      } else {
-        refs.btnBulk.textContent = "Abrir 🚀";
-      }
-      return;
-    }
-
     const fromVal = parseInt(refs.instaFrom?.value || "0");
     const toVal = parseInt(refs.instaTo?.value || "0");
 
     if (!fromVal || !toVal || toVal < fromVal) {
-      window.Toast.warning("Rango inválido");
+      if (window.Toast) window.Toast.warning("Rango inválido");
       return;
     }
 
     const rows = refs.requestsList?.querySelectorAll(".staff-row:not(.hidden)") || [];
     const slice = Array.from(rows).slice(fromVal - 1, toVal);
 
+    let handles = [];
     slice.forEach((row) => {
       const handle = row.dataset.instagram;
-      if (handle) bulkQueue.push(handle);
+      if (handle) handles.push(handle);
     });
 
-    if (bulkQueue.length === 0) {
-      window.Toast.info("No hay usuarios con IG en ese rango (de los visibles)");
-    } else {
-      const handle = bulkQueue.shift();
+    if (handles.length === 0) {
+      if (window.Toast) window.Toast.info("No hay usuarios con IG en ese rango");
+      return;
+    }
+
+    handles.forEach(handle => {
       window.open(`https://instagram.com/${encodeURIComponent(handle)}`, "_blank");
-      
-      if (bulkQueue.length > 0) {
-        refs.btnBulk.textContent = `Siguiente (${bulkQueue.length})`;
-      }
+    });
+
+    if (window.Toast) {
+      window.Toast.success(`Abriendo ${handles.length} perfiles. Recuerda permitir ventanas emergentes (pop-ups) en tu navegador.`);
     }
   }
 
