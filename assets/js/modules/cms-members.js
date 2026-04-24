@@ -126,10 +126,7 @@
     });
   }
 
-  function generateMemberId() {
-    const num = Math.floor(1000 + Math.random() * 9000);
-    return `MC-${num}`;
-  }
+
 
   function hasCredsIssue(member, statusOverride) {
     const status = (statusOverride ?? member.status ?? "")
@@ -515,18 +512,6 @@
     // APPROVE / RESEND: Usar Edge Function (genera password, hashea, envía email)
     if (action === "approve" || action === "resend") {
       try {
-        // Asegurar que el miembro tenga member_id
-        let finalMemberId = member.member_id;
-        if (!finalMemberId || finalMemberId.length < 3) {
-          finalMemberId = generateMemberId();
-        }
-
-        const { error: updErr } = await window.sb
-            .from("members")
-            .update({ member_id: finalMemberId })
-            .eq("id", memberId);
-        if (updErr) throw updErr;
-
         const actionLabel = action === "resend" ? "Reenviando credenciales..." : "Procesando aprobación...";
         window.Toast.info(actionLabel);
 
@@ -540,7 +525,7 @@
           },
           body: JSON.stringify({
             action: "approve",
-            member_id: finalMemberId
+            id: memberId
           })
         });
 
