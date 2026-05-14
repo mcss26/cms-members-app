@@ -508,7 +508,7 @@
   // 8. Acciones
   // ─────────────────────────────────────────────────────────────────────────
   async function processAction(action, memberId) {
-    const member = state.members.find((m) => m.id === memberId);
+    const member = state.members.find((m) => String(m.id) === String(memberId));
     if (!member) return;
 
     let confirmMsg = "";
@@ -785,6 +785,8 @@
   document.addEventListener("click", (e) => {
     const actionBtn = e.target.closest("[data-action]");
     if (!actionBtn) return;
+    
+    e.preventDefault();
 
     const action = actionBtn.dataset.action;
     const memberId = actionBtn.dataset.id;

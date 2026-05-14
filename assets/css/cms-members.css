@@ -618,4 +618,5 @@ body.app-shell.cms-members .page-card {
 .cms-members .staff-row.is-exiting {
   animation: rowExit 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
   pointer-events: none;
+  overflow: hidden;
 }
