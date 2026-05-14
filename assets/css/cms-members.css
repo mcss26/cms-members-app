@@ -585,3 +585,37 @@ body.app-shell.cms-members .page-card {
   border-bottom: 1px solid var(--border-1);
   margin-bottom: 32px;
 }
+
+/* ── FASE 11: Cinematic Exit ─────────────────────────────────────────── */
+@keyframes rowExit {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+  30% {
+    opacity: 0;
+    transform: translateX(40px);
+    filter: blur(4px);
+    max-height: 80px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+    border-width: 1px;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(40px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-width: 0;
+    overflow: hidden;
+  }
+}
+
+.cms-members .staff-row.is-exiting {
+  animation: rowExit 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  pointer-events: none;
+}

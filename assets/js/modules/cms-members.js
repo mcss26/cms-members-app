@@ -564,7 +564,23 @@
           window.Toast.success(successMsg);
         }
 
-        await loadMembers();
+        if (action === "resend" || state.currentFilter === "all" || state.currentFilter === "debug") {
+           await loadMembers();
+        } else {
+           const row = document.querySelector(`.staff-row[data-member-id="${memberId}"]`);
+           if (row) {
+              row.classList.add('is-exiting');
+              setTimeout(() => {
+                 row.remove();
+                 updateCounts();
+                 if (document.querySelectorAll('.staff-row:not(.is-exiting)').length === 0) {
+                     loadMembers();
+                 }
+              }, 500);
+           } else {
+              await loadMembers();
+           }
+        }
         return;
       } catch (err) {
         console.error(`Error en ${action}:`, err);
@@ -584,7 +600,24 @@
         if (error) throw error;
 
         window.Toast.success("Solicitud rechazada");
-        await loadMembers();
+        
+        if (state.currentFilter === "all" || state.currentFilter === "debug") {
+            await loadMembers();
+        } else {
+            const row = document.querySelector(`.staff-row[data-member-id="${memberId}"]`);
+            if (row) {
+                row.classList.add('is-exiting');
+                setTimeout(() => {
+                    row.remove();
+                    updateCounts();
+                    if (document.querySelectorAll('.staff-row:not(.is-exiting)').length === 0) {
+                        loadMembers();
+                    }
+                }, 500);
+            } else {
+                await loadMembers();
+            }
+        }
         return;
       } catch (err) {
         console.error("Error al rechazar:", err);
