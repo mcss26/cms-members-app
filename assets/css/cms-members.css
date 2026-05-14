@@ -177,6 +177,31 @@ body.app-shell.cms-members .page-card {
   font-weight: 600;
 }
 
+.cms-members .sku-filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cms-members .btn-sort {
+  padding: 0 12px;
+  height: 32px;
+  border: 1px solid var(--neutral-600);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.cms-members .btn-sort:hover {
+  border-color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .cms-members .search-input-wrap {
   display: flex;
   align-items: center;
@@ -215,8 +240,15 @@ body.app-shell.cms-members .page-card {
 /* ── FASE 5: Bulk Row Details ────────────────────────────────────────── */
 
 .cms-members .cms-bulk-details {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--neutral-800);
+  border: 1px solid var(--neutral-800);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.cms-members .cms-bulk-details-content {
+  border-top: 1px solid var(--neutral-800);
+  margin-top: 16px;
+  padding-top: 16px;
 }
 
 .cms-members .cms-bulk-details summary {
@@ -452,9 +484,13 @@ body.app-shell.cms-members .page-card {
     flex-direction: column;
     align-items: flex-start;
   }
-  .cms-members .search-input-wrap {
+  .cms-members .sku-filter-actions {
     width: 100%;
     margin-top: 12px;
+  }
+  .cms-members .search-input-wrap {
+    width: 100%;
+    flex: 1;
   }
   .cms-members .search-input {
     width: 100%;
@@ -493,4 +529,15 @@ body.app-shell.cms-members .page-card {
 .cms-members .empty-state.danger {
   border-color: var(--red-400);
   color: var(--red-400);
+}
+
+/* ── FASE 10: Pagination ─────────────────────────────────────────────── */
+
+.cms-members .pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0;
+  border-top: 1px solid var(--neutral-800);
+  margin-top: 24px;
 }

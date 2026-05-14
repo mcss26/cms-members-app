@@ -112,22 +112,32 @@
                       id="count-total-pill">0</span></button>
                 </div>
 
-                <!-- Search (Golden Standard) -->
-                <div class="search-input-wrap">
-                  <svg class="search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                  <input type="search" id="searchInput" class="input search-input" placeholder="Buscar por nombre..."
-                    aria-label="Buscar por nombre">
+                <!-- Actions (Sort & Search) -->
+                <div class="sku-filter-actions">
+                  <button id="btnSortOrder" class="btn-sort" title="Invertir orden (Más recientes primero)">
+                    <svg id="sortIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                  </button>
+                  
+                  <!-- Search (Golden Standard) -->
+                  <div class="search-input-wrap">
+                    <svg class="search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="searchInput" class="input search-input" placeholder="Buscar por nombre..."
+                      aria-label="Buscar por nombre">
+                  </div>
                 </div>
               </div>
 
               <!-- Instagram Bulk Tool (Minimalist details) -->
-              <details class="cms-bulk-details" aria-label="Herramienta de Instagram" style="border: 1px solid var(--neutral-800); padding: 16px; margin-top: 16px;">
+              <details class="cms-bulk-details" aria-label="Herramienta de Instagram">
                 <summary class="btn-ghost btn-sm faint" style="cursor: pointer; list-style: none;">[+] IG BULK TOOLS</summary>
-                <div class="bulk-content row-flex align-center gap-8 mt-16 pt-16" style="border-top: 1px solid var(--neutral-800);">
+                <div class="bulk-content cms-bulk-details-content row-flex align-center gap-8">
                   <input type="number" id="instaFrom" class="input input-compact bulk-input-compact" placeholder="Desde" aria-label="Desde">
                   <input type="number" id="instaTo" class="input input-compact bulk-input-compact" placeholder="Hasta" aria-label="Hasta">
                   <button id="btnBulk" class="btn-secondary btn-sm" aria-label="Abrir Instagram en lote">EJECUTAR</button>
@@ -140,9 +150,11 @@
                 <!-- JS Injected Content -->
               </div>
               
-              <!-- Lazy Loading Sentinel -->
-              <div id="scroll-sentinel" class="hidden text-center faint text-sm font-mono" style="padding: 32px 0;">
-                ↓ CARGANDO MÁS ↓
+              <!-- Pagination -->
+              <div class="pagination-controls">
+                <button id="btnPrevPage" class="btn-secondary btn-sm" disabled>Anterior</button>
+                <span class="text-sm font-mono faint">Página <span id="currentPageDisplay">1</span> de <span id="totalPagesDisplay">1</span></span>
+                <button id="btnNextPage" class="btn-secondary btn-sm" disabled>Siguiente</button>
               </div>
             </div>
 

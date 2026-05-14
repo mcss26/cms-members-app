@@ -55,6 +55,14 @@
     birthdayToday: document.getElementById("birthday-today"),
     tabs: document.querySelectorAll(".tab-chip[data-view]"),
     filterPills: document.querySelectorAll(".pill[data-status]"),
+    
+    btnPrevPage: document.getElementById("btnPrevPage"),
+    btnNextPage: document.getElementById("btnNextPage"),
+    currentPageDisplay: document.getElementById("currentPageDisplay"),
+    totalPagesDisplay: document.getElementById("totalPagesDisplay"),
+
+    btnSortOrder: document.getElementById("btnSortOrder"),
+    sortIcon: document.getElementById("sortIcon"),
   };
 
   const ui = { 
@@ -92,9 +100,11 @@
     currentPage: 1,
     pageSize: 50,
     totalItems: 0,
+    totalPages: 1,
     birthdayCount: 0,
     isLoadingMore: false,
-    hasMore: true
+    hasMore: true,
+    sortDescending: true // true = más recientes primero, false = más antiguos primero
   };
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -179,24 +189,16 @@
   // ─────────────────────────────────────────────────────────────────────────
   // 6. Carga de Datos
   // ─────────────────────────────────────────────────────────────────────────
-  async function loadMembers(page = parseInt(state.currentPage) || 1, append = false) {
+  async function loadMembers(page = parseInt(state.currentPage) || 1) {
     if (page < 1) page = 1;
     state.currentPage = page;
 
     if (state.isLoadingMore) return;
     state.isLoadingMore = true;
 
-    if (!append) {
-      window.Utils.setPageState(ui, { loading: true });
-      state.members = [];
-      if (refs.requestsList) refs.requestsList.innerHTML = '';
-      if (refs.scrollSentinel) refs.scrollSentinel.classList.add("hidden");
-    } else {
-      if (refs.scrollSentinel) {
-         refs.scrollSentinel.classList.remove("hidden");
-         refs.scrollSentinel.textContent = "↓ CARGANDO MÁS ↓";
-      }
-    }
+    window.Utils.setPageState(ui, { loading: true });
+    state.members = [];
+    if (refs.requestsList) refs.requestsList.innerHTML = '';
 
     try {
       let query = window.sb
@@ -220,14 +222,19 @@
       const to = from + state.pageSize - 1;
 
       const { data, count, error } = await query
-          .order("created_at", { ascending: false })
+          .order("created_at", { ascending: !state.sortDescending })
           .range(from, to);
 
       if (error) throw error;
       
-      if (!append) {
-          state.totalItems = count || 0;
-      }
+      state.totalItems = count || 0;
+      state.totalPages = Math.ceil(state.totalItems / state.pageSize) || 1;
+
+      // Actualizar UI Paginación
+      if (refs.currentPageDisplay) refs.currentPageDisplay.textContent = state.currentPage;
+      if (refs.totalPagesDisplay) refs.totalPagesDisplay.textContent = state.totalPages;
+      if (refs.btnPrevPage) refs.btnPrevPage.disabled = state.currentPage <= 1;
+      if (refs.btnNextPage) refs.btnNextPage.disabled = state.currentPage >= state.totalPages;
 
       const newMembers = data.map((m) => {
         let status = (m.status || "pendiente").toString().toLowerCase();
@@ -241,12 +248,7 @@
         };
       });
 
-      if (!append) {
-         state.members = newMembers;
-      } else {
-         state.members = state.members.concat(newMembers);
-      }
-
+      state.members = newMembers;
       state.hasMore = (state.currentPage * state.pageSize) < state.totalItems;
 
       updateCounts();
@@ -256,40 +258,26 @@
         window.Utils.setPageState(ui, { empty: true });
         if (refs.requestsList) refs.requestsList.innerHTML = '<div class="empty-state">No hay resultados.</div>';
       } else {
-        if (!append) window.Utils.setPageState(ui, {});
+        window.Utils.setPageState(ui, {});
         
         if (refs.requestsList) {
-           const html = newMembers.map((m, i) => renderMemberCard(m, (append ? (page-1)*state.pageSize : 0) + i)).join("");
-           if (!append) {
-               refs.requestsList.innerHTML = html;
-           } else {
-               refs.requestsList.insertAdjacentHTML('beforeend', html);
-           }
+           const pageOffset = (state.currentPage - 1) * state.pageSize;
+           const html = newMembers.map((m, i) => renderMemberCard(m, pageOffset + i)).join("");
+           refs.requestsList.innerHTML = html;
         }
-      }
-
-      if (refs.scrollSentinel) {
-         if (!state.hasMore && state.members.length > 0) {
-            refs.scrollSentinel.classList.add("hidden");
-         } else if (state.members.length > 0) {
-            refs.scrollSentinel.classList.remove("hidden");
-            refs.scrollSentinel.textContent = "↓ CARGANDO MÁS ↓";
-         } else {
-            refs.scrollSentinel.classList.add("hidden");
-         }
       }
 
     } catch (err) {
       console.error("[cms-members] Error cargando members:", err);
       if (window.Toast) window.Toast.error("Error al cargar datos: " + err.message);
-      if (!append && refs.requestsList) {
+      if (refs.requestsList) {
         refs.requestsList.innerHTML =
           '<div class="empty-state danger">Error al cargar datos. Contáctate con soporte.</div>';
       }
-      if (!append && window.Utils) window.Utils.setPageState(ui, {});
+      if (window.Utils) window.Utils.setPageState(ui, {});
     } finally {
       state.isLoadingMore = false;
-      if (!append && window.Utils) window.Utils.setPageState(ui, { loading: false });
+      if (window.Utils) window.Utils.setPageState(ui, { loading: false });
     }
   }
 
@@ -328,7 +316,7 @@
     }
 
     return `
-        <div class="staff-row" role="listitem" data-instagram="${escapeHTML(igHandle)}" data-member-id="${m.id}" data-status="${status}" data-search="${escapeHTML(m._search || "")}" style="--stagger: ${index > 20 ? 0 : index}">
+        <div class="staff-row" role="listitem" data-global-index="${index + 1}" data-instagram="${escapeHTML(igHandle)}" data-member-id="${m.id}" data-status="${status}" data-search="${escapeHTML(m._search || "")}" style="--stagger: ${index % 20}">
             <div class="avatar-circle" style="font-family: var(--font-mono); font-size: 11px;">${avatarNumber}</div>
             <div class="staff-info" style="flex: 1">
                 <div class="row-flex gap-8 align-center">
@@ -616,7 +604,10 @@
     }
 
     const rows = refs.requestsList?.querySelectorAll(".staff-row:not(.hidden)") || [];
-    const slice = Array.from(rows).slice(fromVal - 1, toVal);
+    const slice = Array.from(rows).filter(row => {
+      const idx = parseInt(row.dataset.globalIndex);
+      return idx >= fromVal && idx <= toVal;
+    });
 
     let handles = [];
     slice.forEach((row) => {
@@ -697,15 +688,38 @@
     else loadMembers(1);
   });
 
-  // Intersection Observer for Lazy Loading
-  if (refs.scrollSentinel && window.IntersectionObserver) {
-    const observer = new IntersectionObserver((entries) => {
-       if (entries[0].isIntersecting && state.hasMore && !state.isLoadingMore && state.currentView === "solicitudes") {
-           loadMembers(state.currentPage + 1, true);
-       }
-    }, { rootMargin: "100px" });
-    observer.observe(refs.scrollSentinel);
-  }
+  // Pagination listeners
+  refs.btnPrevPage?.addEventListener("click", () => {
+    if (state.currentPage > 1) {
+      loadMembers(state.currentPage - 1);
+    }
+  });
+
+  refs.btnNextPage?.addEventListener("click", () => {
+    if (state.currentPage < state.totalPages) {
+      loadMembers(state.currentPage + 1);
+    }
+  });
+
+  // Sort toggle
+  refs.btnSortOrder?.addEventListener("click", () => {
+    state.sortDescending = !state.sortDescending;
+    
+    // Update Icon & Title
+    if (refs.sortIcon) {
+      if (state.sortDescending) {
+        // Down arrow (newest first)
+        refs.sortIcon.innerHTML = `<line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline>`;
+        refs.btnSortOrder.title = "Invertir orden (Más recientes primero)";
+      } else {
+        // Up arrow (oldest first)
+        refs.sortIcon.innerHTML = `<line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline>`;
+        refs.btnSortOrder.title = "Invertir orden (Más antiguos primero)";
+      }
+    }
+    
+    loadMembers(1);
+  });
 
   // Bulk Instagram
   refs.btnBulk?.addEventListener("click", openBulkInstagrams);
