@@ -20,9 +20,9 @@
   <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
   <title>CMS Members — Midnight</title>
   <link rel="stylesheet" href="../assets/css/tokens.css">
-  <link rel="stylesheet" href="../assets/css/base.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
+  
+  
+  <link rel="stylesheet" href="../assets/css/app.css">
   <link rel="stylesheet" href="../assets/css/cms-members.css?v=2">
 </head>
 
@@ -39,8 +39,8 @@
       <div class="page-card overflow-visible">
 
 
-        <!-- 1. Loading State -->
-        <div class="page-card-loading is-visible" id="page-card-loading">
+        <!-- 1. Loading State (Now non-blocking for cinematic load) -->
+        <div class="page-card-loading" id="page-card-loading" style="display:none;">
           <div class="state-block loading">
             <div class="state-loader"></div>
             <p class="state-title">Cargando datos...</p>
@@ -51,49 +51,49 @@
 
 
         <!-- 3. Module Content -->
-        <div id="module-content" class="hidden">
+        <div id="module-content">
           <div class="staff-dashboard cms-dashboard">
 
             <!-- Top Navigation (Exit Trap fix) -->
-            <div style="display: flex; justify-content: flex-end; padding-bottom: 24px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 32px;">
+            <div class="top-actions-bar">
               <button id="btn-logout" class="btn-ghost btn-sm faint" aria-label="Cerrar sesión">SALIR</button>
             </div>
 
             <!-- Dashboard Header (Golden Standard) -->
-            <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 32px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 32px; flex-wrap: wrap; gap: 24px;">
+            <div class="dashboard-header">
               <div>
-                <h2 class="dashboard-title" style="font-size: 36px; letter-spacing: -0.02em;">CMS Members</h2>
-                <p class="dashboard-subtitle" style="margin-top: 8px;">Solicitudes, altas y cumpleaños</p>
+                <h2 class="dashboard-title">CMS Members</h2>
+                <p class="dashboard-subtitle">Solicitudes, altas y cumpleaños</p>
               </div>
               <div class="actions-bar">
                 <!-- Tab Bar in actions-bar (Golden Standard) -->
-                <div class="tab-bar" style="border-bottom: none; gap: 16px;">
-                  <button class="tab-chip active" data-view="solicitudes" style="font-size: 14px;">Solicitudes</button>
-                  <button type="button" class="tab-chip" data-view="cumple" style="font-size: 14px;">Cumpleaños</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Summary Metrics (Bento Grid) -->
-            <div class="summary-metrics-container">
-              <div class="summary-metrics-grid">
-                <div class="summary-metric-card">
-                  <div class="summary-metric-label">TOTAL REGISTROS</div>
-                  <div class="summary-metric-value" id="count-total">0</div>
-                </div>
-                <div class="summary-metric-card">
-                  <div class="summary-metric-label">MIEMBROS ACTIVOS</div>
-                  <div class="summary-metric-value text-primary" id="count-activo">0</div>
-                </div>
-                <div class="summary-metric-card">
-                  <div class="summary-metric-label">PENDIENTES</div>
-                  <div class="summary-metric-value accent-yellow" id="count-pendiente-metric">0</div>
+                <div class="tab-bar">
+                  <button class="tab-chip active" data-view="solicitudes">Solicitudes</button>
+                  <button type="button" class="tab-chip" data-view="cumple">Cumpleaños</button>
                 </div>
               </div>
             </div>
 
             <!-- VIEW: Solicitudes -->
             <div id="view-solicitudes" class="view-container">
+
+              <!-- Summary Metrics (Bento Grid) -->
+              <div class="summary-metrics-container">
+                <div class="summary-metrics-grid">
+                  <div class="summary-metric-card">
+                    <div class="summary-metric-label">TOTAL REGISTROS</div>
+                    <div class="summary-metric-value" id="count-total">0</div>
+                  </div>
+                  <div class="summary-metric-card">
+                    <div class="summary-metric-label">MIEMBROS ACTIVOS</div>
+                    <div class="summary-metric-value text-primary" id="count-activo">0</div>
+                  </div>
+                  <div class="summary-metric-card">
+                    <div class="summary-metric-label">PENDIENTES</div>
+                    <div class="summary-metric-value accent-yellow" id="count-pendiente-metric">0</div>
+                  </div>
+                </div>
+              </div>
 
               <!-- Filter Bar (Golden Standard: sku-filter-bar) -->
               <div class="sku-filter-bar" aria-label="Filtros de solicitudes">
@@ -136,7 +136,7 @@
 
               <!-- Instagram Bulk Tool (Minimalist details) -->
               <details class="cms-bulk-details" aria-label="Herramienta de Instagram">
-                <summary class="btn-ghost btn-sm faint" style="cursor: pointer; list-style: none;">[+] IG BULK TOOLS</summary>
+                <summary class="btn-ghost btn-sm faint">[+] IG BULK TOOLS</summary>
                 <div class="bulk-content cms-bulk-details-content row-flex align-center gap-8">
                   <input type="number" id="instaFrom" class="input input-compact bulk-input-compact" placeholder="Desde" aria-label="Desde">
                   <input type="number" id="instaTo" class="input input-compact bulk-input-compact" placeholder="Hasta" aria-label="Hasta">

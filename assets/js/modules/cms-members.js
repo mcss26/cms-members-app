@@ -150,10 +150,27 @@
   }
 
   function setText(ref, value) {
-    if (ref) ref.textContent = String(value ?? 0);
+    if (ref) {
+      if (window.Utils?.stopScramble) {
+        window.Utils.stopScramble(ref, String(value ?? 0));
+      } else {
+        ref.textContent = String(value ?? 0);
+      }
+    }
+  }
+
+  function startCountScramble() {
+    if (!window.Utils?.startScramble) return;
+    const targets = [
+      refs.countTotal, refs.countTotalPill, refs.countPendiente,
+      refs.countPendienteMetric, refs.countActivo, refs.countActivoPill,
+      refs.countRechazado, refs.countBanned
+    ];
+    targets.forEach(t => { if(t) window.Utils.startScramble(t); });
   }
 
   async function updateCounts() {
+    startCountScramble();
     try {
       const getCount = (status) => window.sb.from('members').select('*', { count: 'exact', head: true }).eq('status', status);
       const [pend, actv, rech, bn, tot] = await Promise.all([
@@ -342,6 +359,13 @@
 
   async function loadBirthdays() {
     if (!refs.birthdayList) return;
+    
+    // Scramble the KPIs for birthdays (the top servers/metrics for this view)
+    if (window.Utils?.startScramble) {
+        window.Utils.startScramble(refs.birthdayToday);
+        window.Utils.startScramble(refs.countCumple);
+    }
+    
     window.Utils.setPageState(ui, { loading: true });
 
     try {
