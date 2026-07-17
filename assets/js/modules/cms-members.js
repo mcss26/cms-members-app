@@ -41,6 +41,9 @@
     btnBulk: document.getElementById("btnBulk"),
     instaFrom: document.getElementById("instaFrom"),
     instaTo: document.getElementById("instaTo"),
+    btnBulkBirthday: document.getElementById("btnBulkBirthday"),
+    instaFromBirthday: document.getElementById("instaFromBirthday"),
+    instaToBirthday: document.getElementById("instaToBirthday"),
     scrollSentinel: document.getElementById("scroll-sentinel"),
     countTotal: document.getElementById("count-total"),
     countTotalPill: document.getElementById("count-total-pill"),
@@ -461,7 +464,7 @@
       }
 
       refs.birthdayList.innerHTML = filteredData
-        .map((m) => renderBirthdayCard(m))
+        .map((m, index) => renderBirthdayCard(m, index))
         .join("");
 
     } catch (err) {
@@ -472,7 +475,7 @@
     }
   }
 
-  function renderBirthdayCard(m) {
+  function renderBirthdayCard(m, index) {
     const igHandle = (m.instagram || "").replace("@", "").trim();
     const igLink = igHandle
       ? `<a href="https://instagram.com/${encodeURIComponent(igHandle)}" target="_blank" class="accent">@${escapeHTML(igHandle)}</a>`
@@ -483,7 +486,8 @@
       : `<span class="status-pill status-neutral" style="border: 1px solid var(--neutral-600); color: var(--neutral-400); padding: 4px 8px; font-size: 10px;">${escapeHTML(m.nacimiento)}</span>`;
 
     return `
-        <div class="staff-row" role="listitem" data-member-id="${m.id}" ${m.isToday ? 'style="border-left: 2px solid var(--green-400);"' : ''}>
+        <div class="staff-row" role="listitem" data-member-id="${m.id}" data-global-index="${index + 1}" data-instagram="${escapeHTML(igHandle)}" ${m.isToday ? 'style="border-left: 2px solid var(--green-400);"' : ''}>
+            <div class="avatar-circle" style="font-family: var(--font-mono); font-size: 11px;">${index + 1}</div>
             <div class="staff-info">
                 <div class="row-flex gap-8 align-center">
                     <span class="staff-name" ${m.isToday ? 'style="color: var(--green-400);"' : ''}>${escapeHTML(m.nombre)}</span>
@@ -691,6 +695,41 @@
     }
   }
 
+  function openBulkBirthdaysInstagrams() {
+    const fromVal = parseInt(refs.instaFromBirthday?.value || "0");
+    const toVal = parseInt(refs.instaToBirthday?.value || "0");
+
+    if (!fromVal || !toVal || toVal < fromVal) {
+      if (window.Toast) window.Toast.warning("Rango inválido");
+      return;
+    }
+
+    const rows = refs.birthdayList?.querySelectorAll(".staff-row:not(.hidden)") || [];
+    const slice = Array.from(rows).filter(row => {
+      const idx = parseInt(row.dataset.globalIndex);
+      return idx >= fromVal && idx <= toVal;
+    });
+
+    let handles = [];
+    slice.forEach((row) => {
+      const handle = row.dataset.instagram;
+      if (handle) handles.push(handle);
+    });
+
+    if (handles.length === 0) {
+      if (window.Toast) window.Toast.info("No hay usuarios con IG en ese rango");
+      return;
+    }
+
+    handles.forEach(handle => {
+      window.open(`https://instagram.com/${encodeURIComponent(handle)}`, "_blank");
+    });
+
+    if (window.Toast) {
+      window.Toast.success(`Abriendo ${handles.length} perfiles. Recuerda permitir ventanas emergentes (pop-ups) en tu navegador.`);
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // 9. Vista Switching
   // ─────────────────────────────────────────────────────────────────────────
@@ -785,6 +824,7 @@
 
   // Bulk Instagram
   refs.btnBulk?.addEventListener("click", openBulkInstagrams);
+  refs.btnBulkBirthday?.addEventListener("click", openBulkBirthdaysInstagrams);
 
   // Delegated click handler for actions
   document.addEventListener("click", (e) => {
