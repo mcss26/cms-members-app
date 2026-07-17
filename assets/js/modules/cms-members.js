@@ -232,7 +232,7 @@
 
       if (state.searchQuery) {
           const sq = `%${state.searchQuery}%`;
-          query = query.or(`nombre.ilike.${sq},instagram.ilike.${sq},email.ilike.${sq}`);
+          query = query.or(`nombre.ilike.${sq},instagram.ilike.${sq},email.ilike.${sq},telefono.ilike.${sq}`);
       }
 
       const from = (state.currentPage - 1) * state.pageSize;
@@ -346,6 +346,8 @@
                     <span>${igLink}</span>
                     <span class="faint">•</span>
                     <span class="muted">${escapeHTML(m.email || "No email")}</span>
+                    <span class="faint">•</span>
+                    <span class="muted">${escapeHTML(m.telefono || "Sin Teléfono")}</span>
                     ${m.member_id ? `<span class="faint">•</span> <span class="accent">${escapeHTML(m.member_id)}</span>` : ""}
                 </div>
             </div>
@@ -491,6 +493,8 @@
                 <div class="row-flex gap-16 mt-4 text-sm">
                      <span>${igLink}</span>
                      <span class="muted">${escapeHTML(m.email || "")}</span>
+                     <span class="faint">•</span>
+                     <span class="muted font-mono" style="font-size: 12px;">${escapeHTML(m.telefono || "Sin Teléfono")}</span>
                 </div>
             </div>
 
@@ -645,7 +649,8 @@
       }
     }
 
-    const message = `¡Hola ${member.nombre}! 🎂🎊 Como esta semana es tu cumpleaños, en Midnight Club queremos festejarlo como se debe 🍾🔥\n\nTe esperamos este finde con 5 SHOTS de cortesía para que brindes con tus amigos 🥂✨\n\n👉 Para reclamarlos, simplemente acercate a la Caja 1 con tu nombre, ¡y listo!\n\n¡Que tengas un excelente día y nos vemos en la pista! 🪩`;
+    const firstName = member.nombre ? member.nombre.trim().split(/\s+/)[0] : "Miembro";
+    const message = `¡Hola ${firstName}! 🎂🎊 Como esta semana es tu cumpleaños, en Midnight Club queremos festejarlo como se debe 🍾🔥\n\nTe esperamos este finde con 5 SHOTS de cortesía para que brindes con tus amigos 🥂✨\n\n👉 Para reclamarlos responde a este mensaje y luego simplemente acercate a la Caja 1 con tu nombre, ¡y listo!\n\n¡Que tengas un excelente día y nos vemos el Sábado!`;
     const url = `https://api.whatsapp.com/send/?phone=${phone}&text=${encodeURIComponent(message)}`;
 
     window.open(url, "_blank");
