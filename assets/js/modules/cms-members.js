@@ -843,14 +843,6 @@
     }
   });
 
-  // EmailJS Init
-  if (window.emailjs && window.APP_CONFIG?.EMAILJS) {
-    try {
-      emailjs.init(window.APP_CONFIG.EMAILJS.PUBLIC_KEY);
-    } catch (e) {
-      console.warn("EmailJS init error", e);
-    }
-  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // 11. Inicialización
