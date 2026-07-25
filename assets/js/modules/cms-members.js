@@ -896,7 +896,7 @@
       
       csvContacts = [];
       for (let i = 1; i < lines.length; i++) { // Saltamos la cabecera
-        const parts = lines[i].split(",");
+        const parts = lines[i].split(/[,;]/);
         if (parts.length >= 2) {
           const nombre = parts[0].replace(/"/g, "").trim();
           const email = parts[1].replace(/"/g, "").trim();
@@ -1030,9 +1030,6 @@
     }
   }
 
-  // Bind execution
-  refs.btnCsvCampaign?.addEventListener("click", executeCsvCampaign);
-
   // ─────────────────────────────────────────────────────────────────────────
   // 9. Vista Switching
   // ─────────────────────────────────────────────────────────────────────────
@@ -1132,6 +1129,7 @@
   // Bulk Email
   refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
   refs.btnBulkCampaign?.addEventListener("click", executeBulkCampaign);
+  refs.btnCsvCampaign?.addEventListener("click", executeCsvCampaign);
 
   // CSV Export
   async function downloadMembersCSV(type) {
