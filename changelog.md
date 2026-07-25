@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.0] - 2026-07-25
 - **feat:** Add CSV export functionality for total and active members directly from the KPI cards in the dashboard
+- **fix:** Bypass Supabase 1000 row API limit when exporting CSV files to ensure all users are downloaded
 - **feat:** Add `last_campaign_sent_at` timestamp in DB to prevent email duplicates and handle seamless campaign resuming
 - **fix:** Add robust RegEx email validation in Edge Function to prevent Resend Batch API from rejecting payloads due to malformed addresses
 - **feat:** Implement cloud-native bulk email sender (`bulk-email-active`) via Supabase Edge Functions and Resend Batch API
