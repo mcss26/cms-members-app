@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.2.0] - 2026-07-25
+- **feat:** Add CSV Dropzone bulk email campaign (1-CTA design) to process external user databases
+- **fix:** Support both comma (,) and semicolon (;) separators in CSV parser to natively support Spanish Excel files
+- **fix:** Align 'FREE BATCH CSV' UI elements perfectly on a single horizontal flex row matching the 'ACTIVE MEMBERS' layout
 - **feat:** Add CSV export functionality for total and active members directly from the KPI cards in the dashboard
 - **fix:** Bypass Supabase 1000 row API limit when exporting CSV files to ensure all users are downloaded
 - **feat:** Add `last_campaign_sent_at` timestamp in DB to prevent email duplicates and handle seamless campaign resuming
