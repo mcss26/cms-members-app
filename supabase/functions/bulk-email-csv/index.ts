@@ -24,11 +24,12 @@ interface BulkEmailCsvRequest {
   isTest?: boolean;
   testEmail?: string;
   freeLink: string;
+  campaignType?: 'free' | 'vip';
   contacts: { nombre: string; email: string }[];
 }
 
-// Generador del HTML de la plantilla (1 CTA, Blanco)
-function generateEmailHtml(nombre: string, freeLink: string): string {
+// Generador del HTML de la plantilla
+function generateEmailHtml(nombre: string, freeLink: string, campaignType: 'free' | 'vip' = 'free'): string {
   // Aseguramos capturar única y exclusivamente el PRIMER NOMBRE, y que esté en Title Case
   let firstName = "Miembro";
   if (nombre && typeof nombre === 'string') {
@@ -39,6 +40,17 @@ function generateEmailHtml(nombre: string, freeLink: string): string {
       firstName = rawFirst.toUpperCase();
     }
   }
+
+  const isVip = campaignType === 'vip';
+  const descriptionText = isVip 
+    ? "Recibiste una invitacion VIP para este Sabado" 
+    : "¡Felicidades! Recibiste una invitación MEMBER FREE PASS para este sábado. ¡Te esperamos!";
+  const ctaText = isVip 
+    ? "OBTENE TU ACCESO VIP" 
+    : "OBTENER MEMBER FREE PASS";
+  const footerText = isVip 
+    ? "SECTOR EXCLUSIVO PARA MEMBERS VIP<br>ACCESO RAPIDO GREENLINE<br>VÁLIDO HASTA LAS 03:00." 
+    : "VÁLIDO HASTA LAS 2:00. SUJETO A CAPACIDAD.";
   
   return `
 <!DOCTYPE html>
@@ -67,16 +79,16 @@ function generateEmailHtml(nombre: string, freeLink: string): string {
     <div style="padding: 40px 30px 48px;">
       
       <p style="color: #A3A3A3; font-size: 14px; line-height: 1.8; margin: 0 auto 40px; max-width: 380px; font-weight: 400;">
-        ¡Felicidades! Recibiste una invitación MEMBER FREE PASS para este sábado. ¡Te esperamos!
+        ${descriptionText}
       </p>
       
       <div style="margin-bottom: 16px;">
         <a href="${freeLink}" style="display: block; background-color: #E5E5E5; background-image: linear-gradient(#E5E5E5, #E5E5E5); color: #0A0A0A; text-decoration: none; padding: 18px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; transition: opacity 0.2s;">
-          OBTENER MEMBER FREE PASS
+          ${ctaText}
         </a>
       </div>
       <p style="color: #52525B; font-size: 10px; margin: 0 auto 32px; line-height: 1.5; font-weight: 400; max-width: 300px; text-transform: uppercase; letter-spacing: 1px;">
-        VÁLIDO HASTA LAS 2:00. SUJETO A CAPACIDAD.
+        ${footerText}
       </p>
 
       <hr style="border: 0; border-top: 1px solid #1A1A1A; margin: 0 0 32px;" />
@@ -114,7 +126,7 @@ serve(async (req) => {
     }
 
     const body: BulkEmailCsvRequest = await req.json();
-    const { isTest, testEmail, freeLink, contacts } = body;
+    const { isTest, testEmail, freeLink, campaignType = 'free', contacts } = body;
 
     if (!freeLink) {
       return jsonResponse({ error: "Falta el link de la campaña" }, 400);
@@ -125,7 +137,7 @@ serve(async (req) => {
         return jsonResponse({ error: "Email de prueba requerido" }, 400);
       }
 
-      const html = generateEmailHtml("Test", freeLink);
+      const html = generateEmailHtml("Test", freeLink, campaignType);
 
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -169,7 +181,7 @@ serve(async (req) => {
             from: "Midnight Club <noreply@midnightclub.com.ar>",
             to: validEmail,
             subject: "Invitación Exclusiva - Midnight Club",
-            html: generateEmailHtml(c.nombre || "Miembro", freeLink)
+            html: generateEmailHtml(c.nombre || "Miembro", freeLink, campaignType)
         };
     }).filter(e => e !== null);
 

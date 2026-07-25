@@ -90,6 +90,17 @@
     csvSentCount: document.getElementById("csv-sent-count"),
     csvTotalCount: document.getElementById("csv-total-count"),
     csvProgressBar: document.getElementById("csv-progress-bar"),
+    
+    // VIP CSV Refs
+    csvVipLink: document.getElementById("csvVipLink"),
+    btnCsvVipCampaign: document.getElementById("btnCsvVipCampaign"),
+    csvVipDropzone: document.getElementById("csv-vip-dropzone"),
+    csvVipFileInput: document.getElementById("csv-vip-file-input"),
+    csvVipFileName: document.getElementById("csv-vip-file-name"),
+    csvVipProgressContainer: document.getElementById("csv-vip-progress-container"),
+    csvVipSentCount: document.getElementById("csv-vip-sent-count"),
+    csvVipTotalCount: document.getElementById("csv-vip-total-count"),
+    csvVipProgressBar: document.getElementById("csv-vip-progress-bar"),
   };
 
   const ui = { 
@@ -876,9 +887,10 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 8.5 CSV Bulk Campaign
+  // 8.5 CSV Bulk Campaign (FREE & VIP)
   // ─────────────────────────────────────────────────────────────────────────
   let csvContacts = [];
+  let vipCsvContacts = [];
 
   function handleCsvFile(file) {
     if (!file || !file.name.toLowerCase().endsWith('.csv')) {
@@ -950,6 +962,77 @@
     });
   }
 
+  // Handle VIP CSV
+  function handleVipCsvFile(file) {
+    if (!file || !file.name.toLowerCase().endsWith('.csv')) {
+      if (window.Toast) window.Toast.error("Por favor, sube un archivo CSV válido.");
+      return;
+    }
+    
+    if (refs.csvVipFileName) {
+       refs.csvVipFileName.textContent = `Archivo cargado: ${file.name}`;
+       refs.csvVipFileName.style.display = 'block';
+       refs.csvVipDropzone.style.display = 'none';
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+      
+      vipCsvContacts = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/[,;]/);
+        if (parts.length >= 2) {
+          const nombre = parts[0].replace(/"/g, "").trim();
+          const email = parts[1].replace(/"/g, "").trim();
+          if (nombre && email && email.includes('@')) {
+            vipCsvContacts.push({ nombre, email });
+          }
+        }
+      }
+      
+      if (refs.csvVipTotalCount) refs.csvVipTotalCount.textContent = vipCsvContacts.length;
+      if (refs.btnCsvVipCampaign && vipCsvContacts.length > 0) {
+         refs.btnCsvVipCampaign.disabled = false;
+         refs.btnCsvVipCampaign.textContent = `ENVIAR A ${vipCsvContacts.length} CONTACTOS VIP`;
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  if (refs.csvVipDropzone && refs.csvVipFileInput) {
+    refs.csvVipDropzone.addEventListener("click", () => refs.csvVipFileInput.click());
+    
+    refs.csvVipDropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      refs.csvVipDropzone.style.borderColor = "var(--text-primary)";
+      refs.csvVipDropzone.style.color = "var(--text-primary)";
+    });
+
+    refs.csvVipDropzone.addEventListener("dragleave", () => {
+      refs.csvVipDropzone.style.borderColor = "var(--neutral-600)";
+      refs.csvVipDropzone.style.color = "var(--neutral-400)";
+    });
+
+    refs.csvVipDropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      refs.csvVipDropzone.style.borderColor = "var(--neutral-600)";
+      refs.csvVipDropzone.style.color = "var(--neutral-400)";
+      
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        refs.csvVipFileInput.files = e.dataTransfer.files;
+        handleVipCsvFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    refs.csvVipFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleVipCsvFile(e.target.files[0]);
+      }
+    });
+  }
+
   async function callBulkCsvEmailFn(payload) {
     const { data: { session } } = await window.sb.auth.getSession();
     if (!session) throw new Error("No hay sesión activa");
@@ -975,25 +1058,34 @@
     return result;
   }
 
-  async function executeCsvCampaign() {
-    const freeLink = refs.csvFreeLink?.value.trim();
-    if (!freeLink) {
-      if (window.Toast) window.Toast.warning("Falta el link de la campaña FREE PASS");
+  async function executeCsvCampaign(type = 'free') {
+    const isVip = type === 'vip';
+    const linkInput = isVip ? refs.csvVipLink : refs.csvFreeLink;
+    const contacts = isVip ? vipCsvContacts : csvContacts;
+    
+    const theLink = linkInput?.value.trim();
+    if (!theLink) {
+      if (window.Toast) window.Toast.warning(`Falta el link de la campaña ${isVip ? 'VIP' : 'FREE'} PASS`);
       return;
     }
-    if (csvContacts.length === 0) {
+    if (contacts.length === 0) {
       if (window.Toast) window.Toast.warning("No hay contactos válidos cargados en el CSV");
       return;
     }
 
-    const confirmMsg = `¿Estás seguro de enviar la campaña a los ${csvContacts.length} contactos del CSV?`;
+    const confirmMsg = `¿Estás seguro de enviar la campaña a los ${contacts.length} contactos del CSV?`;
     const confirmed = await window.Utils.confirmModal(confirmMsg);
     if (!confirmed) return;
 
-    if (refs.csvProgressContainer) refs.csvProgressContainer.style.display = "block";
-    if (refs.btnCsvCampaign) refs.btnCsvCampaign.disabled = true;
-    if (refs.csvSentCount) refs.csvSentCount.textContent = "0";
-    if (refs.csvProgressBar) refs.csvProgressBar.style.width = "0%";
+    const btn = isVip ? refs.btnCsvVipCampaign : refs.btnCsvCampaign;
+    const progressContainer = isVip ? refs.csvVipProgressContainer : refs.csvProgressContainer;
+    const sentCountEl = isVip ? refs.csvVipSentCount : refs.csvSentCount;
+    const progressBar = isVip ? refs.csvVipProgressBar : refs.csvProgressBar;
+
+    if (progressContainer) progressContainer.style.display = "block";
+    if (btn) btn.disabled = true;
+    if (sentCountEl) sentCountEl.textContent = "0";
+    if (progressBar) progressBar.style.width = "0%";
 
     let totalSent = 0;
     const batchSize = 100;
@@ -1001,24 +1093,25 @@
     try {
       if (window.Toast) window.Toast.info("Iniciando envío masivo por CSV...");
       
-      for (let i = 0; i < csvContacts.length; i += batchSize) {
-        const batch = csvContacts.slice(i, i + batchSize);
+      for (let i = 0; i < contacts.length; i += batchSize) {
+        const batch = contacts.slice(i, i + batchSize);
         
         const result = await callBulkCsvEmailFn({
-          freeLink: freeLink,
+          freeLink: theLink,
+          campaignType: type,
           contacts: batch
         });
         
         const sent = result.sentCount || 0;
         totalSent += sent;
         
-        if (refs.csvSentCount) refs.csvSentCount.textContent = String(totalSent);
-        if (refs.csvProgressBar) {
-           const pct = Math.min(100, (totalSent / csvContacts.length) * 100);
-           refs.csvProgressBar.style.width = `${pct}%`;
+        if (sentCountEl) sentCountEl.textContent = String(totalSent);
+        if (progressBar) {
+           const pct = Math.min(100, (totalSent / contacts.length) * 100);
+           progressBar.style.width = `${pct}%`;
         }
         
-        if (i + batchSize < csvContacts.length) {
+        if (i + batchSize < contacts.length) {
           // Pause 2 seconds to respect Resend Rate Limits
           await new Promise(r => setTimeout(r, 2000));
         }
@@ -1029,7 +1122,7 @@
       console.error("Bulk CSV Campaign Error:", err);
       window.Utils.alertModal(`El envío se detuvo por un error.\nSe procesaron ${totalSent} correos.\nError: ${err.message}`, "Error en Envío Masivo CSV");
     } finally {
-      if (refs.btnCsvCampaign) refs.btnCsvCampaign.disabled = false;
+      if (btn) btn.disabled = false;
     }
   }
 
@@ -1128,13 +1221,19 @@
   });
 
   // Bulk Instagram
-  refs.btnBulk?.addEventListener("click", openBulkInstagrams);
+    refs.btnBulk?.addEventListener("click", openBulkInstagrams);
   refs.btnBulkBirthday?.addEventListener("click", openBulkBirthdaysInstagrams);
 
   // Bulk Email
-  refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
   refs.btnBulkCampaign?.addEventListener("click", executeBulkCampaign);
-  refs.btnCsvCampaign?.addEventListener("click", executeCsvCampaign);
+  refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
+  if (refs.btnCsvCampaign) {
+    refs.btnCsvCampaign.addEventListener("click", () => executeCsvCampaign('free'));
+  }
+  
+  if (refs.btnCsvVipCampaign) {
+    refs.btnCsvVipCampaign.addEventListener("click", () => executeCsvCampaign('vip'));
+  }
 
   // CSV Export
   async function downloadMembersCSV(type) {

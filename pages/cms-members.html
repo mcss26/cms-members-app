@@ -208,13 +208,25 @@
                 </div>
                 
                 <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px;">
-                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; position: relative;">
                     <label class="summary-metric-label">LINK FREE PASS</label>
                     <input type="url" id="bulkFreeLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                    <div style="position: absolute; top: calc(100% + 6px); left: 0; display: flex; align-items: center; gap: 6px;">
+                      <span style="font-family: var(--font-mono); font-size: 10px; color: var(--neutral-500); user-select: all;">https://www.passline.com/eventos-venta-oculta/member-pass-2am-****</span>
+                      <button type="button" onclick="navigator.clipboard.writeText('https://www.passline.com/eventos-venta-oculta/member-pass-2am-****'); window.Toast?.info('URL copiada al portapapeles');" style="background: transparent; border: none; padding: 0; cursor: pointer; color: var(--neutral-400); display: flex; align-items: center; transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--neutral-400)'" title="Copiar URL">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                    </div>
                   </div>
-                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; position: relative;">
                     <label class="summary-metric-label">LINK PRIORITY PASS</label>
                     <input type="url" id="bulkPriorityLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                    <div style="position: absolute; top: calc(100% + 6px); left: 0; display: flex; align-items: center; gap: 6px;">
+                      <span style="font-family: var(--font-mono); font-size: 10px; color: var(--neutral-500); user-select: all;">https://www.passline.com/eventos-venta-oculta/members-priority-pass-****</span>
+                      <button type="button" onclick="navigator.clipboard.writeText('https://www.passline.com/eventos-venta-oculta/members-priority-pass-****'); window.Toast?.info('URL copiada al portapapeles');" style="background: transparent; border: none; padding: 0; cursor: pointer; color: var(--neutral-400); display: flex; align-items: center; transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--neutral-400)'" title="Copiar URL">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                    </div>
                   </div>
                   <button id="btnBulkCampaign" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR</button>
                 </div>
@@ -243,9 +255,15 @@
                 </div>
                 
                 <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px;">
-                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; position: relative;">
                     <label class="summary-metric-label">LINK FREE PASS</label>
                     <input type="url" id="csvFreeLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                    <div style="position: absolute; top: calc(100% + 6px); left: 0; display: flex; align-items: center; gap: 6px;">
+                      <span style="font-family: var(--font-mono); font-size: 10px; color: var(--neutral-500); user-select: all;">https://www.passline.com/eventos-venta-oculta/member-pass-2am-****</span>
+                      <button type="button" onclick="navigator.clipboard.writeText('https://www.passline.com/eventos-venta-oculta/member-pass-2am-****'); window.Toast?.info('URL copiada al portapapeles');" style="background: transparent; border: none; padding: 0; cursor: pointer; color: var(--neutral-400); display: flex; align-items: center; transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--neutral-400)'" title="Copiar URL">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                    </div>
                   </div>
 
                   <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
@@ -267,6 +285,47 @@
                   </div>
                   <div style="height: 2px; background: var(--neutral-800); overflow: hidden;">
                      <div id="csv-progress-bar" style="height: 100%; width: 0%; background: var(--text-primary); transition: width 0.2s linear;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VIP BATCH CSV -->
+              <div class="summary-metric-card" style="max-width: 1000px; padding: 32px; margin-top: 16px;">
+                <div style="margin-bottom: 24px;">
+                  <h3 class="dashboard-title" style="font-size: 24px; margin: 0; color: #E5E5E5;">VIP BATCH CSV</h3>
+                </div>
+                
+                <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; position: relative;">
+                    <label class="summary-metric-label">LINK VIP PASS</label>
+                    <input type="url" id="csvVipLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                    <div style="position: absolute; top: calc(100% + 6px); left: 0; display: flex; align-items: center; gap: 6px;">
+                      <span style="font-family: var(--font-mono); font-size: 10px; color: var(--neutral-500); user-select: all;">https://passline.com/eventos-venta-oculta/member-vip-pass-****</span>
+                      <button type="button" onclick="navigator.clipboard.writeText('https://passline.com/eventos-venta-oculta/member-vip-pass-****'); window.Toast?.info('URL copiada al portapapeles');" style="background: transparent; border: none; padding: 0; cursor: pointer; color: var(--neutral-400); display: flex; align-items: center; transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--neutral-400)'" title="Copiar URL">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">ARCHIVO CSV</label>
+                    <div id="csv-vip-dropzone" style="border: 1px dashed var(--neutral-600); height: 40px; line-height: 38px; text-align: center; cursor: pointer; color: var(--neutral-400); font-family: var(--font-mono); font-size: 12px; transition: all 0.2s;">
+                       ARRASTRAR O HACER CLIC AQUÍ
+                    </div>
+                    <input type="file" id="csv-vip-file-input" accept=".csv" class="hidden" style="display: none;">
+                    <div id="csv-vip-file-name" style="height: 40px; line-height: 38px; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); border: 1px solid var(--neutral-600); display: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 8px;"></div>
+                  </div>
+
+                  <button id="btnCsvVipCampaign" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR VIP CSV</button>
+                </div>
+
+                <div id="csv-vip-progress-container" style="display: none; border-top: 1px solid var(--neutral-800); padding-top: 24px; background: transparent;">
+                  <div class="row-flex justify-between align-center" style="margin-bottom: 16px;">
+                     <label class="summary-metric-label" style="margin: 0;">PROGRESO DEL CSV VIP</label>
+                     <label class="summary-metric-label" style="margin: 0; color: var(--text-primary); font-size: 14px;"><span id="csv-vip-sent-count">0</span> / <span id="csv-vip-total-count">0</span> PROCESADOS</label>
+                  </div>
+                  <div style="height: 2px; background: var(--neutral-800); overflow: hidden;">
+                     <div id="csv-vip-progress-bar" style="height: 100%; width: 0%; background: var(--text-primary); transition: width 0.2s linear;"></div>
                   </div>
                 </div>
               </div>
