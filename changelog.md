@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Current]
+## [1.2.0] - 2026-07-25
+- **feat:** Add `last_campaign_sent_at` timestamp in DB to prevent email duplicates and handle seamless campaign resuming
+- **fix:** Add robust RegEx email validation in Edge Function to prevent Resend Batch API from rejecting payloads due to malformed addresses
+- **feat:** Implement cloud-native bulk email sender (`bulk-email-active`) via Supabase Edge Functions and Resend Batch API
+- **feat:** Add dedicated 'Campañas' tab in CMS with ultra-minimalist Swiss Brutalism UI
+- **feat:** Build frontend chunked keyset pagination (100 emails/batch) with 2-second rate-limit pauses for reliable mass mailing
+- **refactor:** Encapsulate email HTML generation securely within the Edge Function to prevent payload manipulation
+
+## [1.1.0] - 2026-07-18
+- **feat:** Create local Agent Skill `resend-email-expert` with self-updating capabilities, dedicated scripts, and HTML resources
+- **feat:** Create Python mass mailing script (`send_bulk.py`) leveraging Resend Batch API to process ~4700 users from Excel
+- **feat:** Design dynamic Friend's Day HTML email template with strict dark-mode color preservation hacks
 - **feat:** Update Resend email HTML templates in auth-member Edge Function to match Midnight Club Swiss Brutalism identity
 - **chore:** Add midnight-club-brand and swiss-brutalism-ui skills, remove dead EmailJS code
 - **feat:** Add IG Bulk Tools feature to birthdays tab (`3e0fd81`)

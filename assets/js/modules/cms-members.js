@@ -44,6 +44,14 @@
     btnBulkBirthday: document.getElementById("btnBulkBirthday"),
     instaFromBirthday: document.getElementById("instaFromBirthday"),
     instaToBirthday: document.getElementById("instaToBirthday"),
+    bulkFreeLink: document.getElementById("bulkFreeLink"),
+    bulkPriorityLink: document.getElementById("bulkPriorityLink"),
+    bulkTestEmail: document.getElementById("bulkTestEmail"),
+    btnTestCampaign: document.getElementById("btnTestCampaign"),
+    btnBulkCampaign: document.getElementById("btnBulkCampaign"),
+    bulkProgressContainer: document.getElementById("bulk-progress-container"),
+    bulkSentCount: document.getElementById("bulk-sent-count"),
+    bulkProgressBar: document.getElementById("bulk-progress-bar"),
     scrollSentinel: document.getElementById("scroll-sentinel"),
     countTotal: document.getElementById("count-total"),
     countTotalPill: document.getElementById("count-total-pill"),
@@ -731,6 +739,127 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // BULK EMAIL LOGIC
+  // ─────────────────────────────────────────────────────────────────────────
+  async function callBulkEmailFn(payload) {
+    const authFnUrl = `${window.APP_CONFIG.SUPABASE_URL}/functions/v1/bulk-email-active`;
+    const resp = await fetch(authFnUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": window.APP_CONFIG.SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${window.APP_CONFIG.SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await resp.json();
+    if (!resp.ok || !result.success) {
+      const details = result.details ? ` (${result.details})` : "";
+      throw new Error((result.error || "Error en el envío") + details);
+    }
+    return result;
+  }
+
+  async function executeTestCampaign() {
+    const freeLink = refs.bulkFreeLink?.value.trim();
+    const priorityLink = refs.bulkPriorityLink?.value.trim();
+    const testEmail = refs.bulkTestEmail?.value.trim();
+
+    if (!freeLink || !priorityLink) {
+      if (window.Toast) window.Toast.warning("Faltan los links de la campaña");
+      return;
+    }
+    if (!testEmail) {
+      if (window.Toast) window.Toast.warning("Falta el email de prueba");
+      return;
+    }
+
+    try {
+      if (window.Toast) window.Toast.info("Enviando prueba...");
+      await callBulkEmailFn({
+        isTest: true,
+        testEmail: testEmail,
+        freeLink: freeLink,
+        priorityLink: priorityLink
+      });
+      if (window.Toast) window.Toast.success("Email de prueba enviado exitosamente.");
+    } catch (err) {
+      console.error("Test Campaign Error:", err);
+      if (window.Toast) window.Toast.error("Error: " + err.message);
+    }
+  }
+
+  async function executeBulkCampaign() {
+    const freeLink = refs.bulkFreeLink?.value.trim();
+    const priorityLink = refs.bulkPriorityLink?.value.trim();
+
+    if (!freeLink || !priorityLink) {
+      if (window.Toast) window.Toast.warning("Faltan los links de la campaña");
+      return;
+    }
+
+    // Get total active from the DOM (assuming it's in countActivo or countTotal for this view)
+    const totalActiveStr = refs.countActivo?.textContent || "0";
+    const totalActive = parseInt(totalActiveStr.replace(/\D/g, ''), 10);
+    
+    if (totalActive === 0) {
+      if (window.Toast) window.Toast.warning("No hay miembros activos para enviar.");
+      return;
+    }
+
+    const confirmMsg = `¿Estás seguro de enviar la campaña de email a TODOS los miembros activos (aprox ${totalActive})?`;
+    const confirmed = await window.Utils.confirmModal(confirmMsg);
+    if (!confirmed) return;
+
+    if (refs.bulkProgressContainer) refs.bulkProgressContainer.style.display = "block";
+    if (refs.btnBulkCampaign) refs.btnBulkCampaign.disabled = true;
+    if (refs.bulkSentCount) refs.bulkSentCount.textContent = "0";
+    if (refs.bulkProgressBar) refs.bulkProgressBar.style.width = "0%";
+
+    let hasMore = true;
+    let lastId = '00000000-0000-0000-0000-000000000000';
+    let totalSent = 0;
+
+    try {
+      if (window.Toast) window.Toast.info("Iniciando envío masivo...");
+      
+      while (hasMore) {
+        const result = await callBulkEmailFn({
+          isTest: false,
+          freeLink: freeLink,
+          priorityLink: priorityLink,
+          last_id: lastId
+        });
+        
+        const sent = result.sentCount || 0;
+        const processed = result.processedCount || sent;
+        totalSent += sent;
+        
+        if (refs.bulkSentCount) refs.bulkSentCount.textContent = String(totalSent);
+        if (refs.bulkProgressBar) {
+           const pct = totalActive > 0 ? Math.min(100, (totalSent / totalActive) * 100) : 100;
+           refs.bulkProgressBar.style.width = `${pct}%`;
+        }
+
+        if (processed < 100 || !result.next_last_id) {
+          hasMore = false;
+        } else {
+          lastId = result.next_last_id;
+          // Pause 2 seconds to respect Resend Rate Limits
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+      
+      if (window.Toast) window.Toast.success(`Campaña finalizada. Se enviaron ${totalSent} correos.`);
+    } catch (err) {
+      console.error("Bulk Campaign Error:", err);
+      window.Utils.alertModal(`El envío se detuvo por un error.\nSe enviaron ${totalSent} correos.\nError: ${err.message}`, "Error en Envío Masivo");
+    } finally {
+      if (refs.btnBulkCampaign) refs.btnBulkCampaign.disabled = false;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // 9. Vista Switching
   // ─────────────────────────────────────────────────────────────────────────
   function switchView(viewName) {
@@ -825,6 +954,10 @@
   // Bulk Instagram
   refs.btnBulk?.addEventListener("click", openBulkInstagrams);
   refs.btnBulkBirthday?.addEventListener("click", openBulkBirthdaysInstagrams);
+
+  // Bulk Email
+  refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
+  refs.btnBulkCampaign?.addEventListener("click", executeBulkCampaign);
 
   // Delegated click handler for actions
   document.addEventListener("click", (e) => {

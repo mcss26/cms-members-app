@@ -70,6 +70,7 @@
                 <div class="tab-bar">
                   <button class="tab-chip active" data-view="solicitudes">Solicitudes</button>
                   <button type="button" class="tab-chip" data-view="cumple">Cumpleaños</button>
+                  <button type="button" class="tab-chip" data-view="campanas">Campañas</button>
                 </div>
               </div>
             </div>
@@ -144,6 +145,8 @@
                 </div>
               </details>
 
+
+
               <!-- List -->
               <div class="staff-list table-viewport table-shell cms-list" id="requestsList" role="list"
                 aria-label="Lista de solicitudes">
@@ -183,6 +186,44 @@
 
               <div id="birthdayList" class="staff-list table-viewport table-shell cms-list" role="list"
                 aria-label="Lista de cumpleaños"></div>
+            </div>
+
+            <!-- VIEW: Campañas -->
+            <div id="view-campanas" class="view-container hidden">
+              
+              <div class="summary-metric-card" style="max-width: 1000px; padding: 32px; margin-top: 16px;">
+                <div style="margin-bottom: 24px;">
+                  <h3 class="dashboard-title" style="font-size: 24px; margin: 0;">ACTIVE MEMBERS</h3>
+                </div>
+                
+                <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">LINK FREE PASS</label>
+                    <input type="url" id="bulkFreeLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                  </div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">LINK PRIORITY PASS</label>
+                    <input type="url" id="bulkPriorityLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                  </div>
+                  <button id="btnBulkCampaign" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR</button>
+                </div>
+
+                <!-- Hidden Test Elements to prevent JS errors -->
+                <div class="hidden">
+                  <input type="email" id="bulkTestEmail" value="test@test.com">
+                  <button id="btnTestCampaign"></button>
+                </div>
+
+                <div id="bulk-progress-container" style="display: none; border-top: 1px solid var(--neutral-800); padding-top: 24px; background: transparent;">
+                  <div class="row-flex justify-between align-center" style="margin-bottom: 16px;">
+                     <label class="summary-metric-label" style="margin: 0;">PROGRESO DEL LOTE</label>
+                     <label class="summary-metric-label" style="margin: 0; color: var(--text-primary); font-size: 14px;"><span id="bulk-sent-count">0</span> PROCESADOS</label>
+                  </div>
+                  <div style="height: 2px; background: var(--neutral-800); overflow: hidden;">
+                     <div id="bulk-progress-bar" style="height: 100%; width: 0%; background: var(--text-primary); transition: width 0.2s linear;"></div>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
