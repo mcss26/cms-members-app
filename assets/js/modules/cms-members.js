@@ -74,6 +74,8 @@
 
     btnSortOrder: document.getElementById("btnSortOrder"),
     sortIcon: document.getElementById("sortIcon"),
+    btnExportTotal: document.getElementById("btn-export-total"),
+    btnExportActivos: document.getElementById("btn-export-activos"),
   };
 
   const ui = { 
@@ -958,6 +960,48 @@
   // Bulk Email
   refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
   refs.btnBulkCampaign?.addEventListener("click", executeBulkCampaign);
+
+  // CSV Export
+  async function downloadMembersCSV(type) {
+    if (window.Toast) window.Toast.info(`Generando CSV de ${type}...`);
+    try {
+      let query = window.sb.from('members').select('nombre, email');
+      if (type === 'activos') {
+        query = query.eq('status', 'active');
+      }
+      const { data, error } = await query;
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        if (window.Toast) window.Toast.info("No hay datos para exportar.");
+        return;
+      }
+      
+      let csvContent = "NOMBRE,EMAIL\n";
+      data.forEach(row => {
+        const nombre = (row.nombre || "").replace(/,/g, "").trim();
+        const email = (row.email || "").replace(/,/g, "").trim();
+        csvContent += `${nombre},${email}\n`;
+      });
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `miembros_${type}.csv`);
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      if (window.Toast) window.Toast.success("CSV descargado exitosamente");
+    } catch(err) {
+      console.error("[cms-members] Error exportando CSV:", err);
+      if (window.Toast) window.Toast.error("Error al exportar CSV");
+    }
+  }
+
+  refs.btnExportTotal?.addEventListener("click", () => downloadMembersCSV('totales'));
+  refs.btnExportActivos?.addEventListener("click", () => downloadMembersCSV('activos'));
 
   // Delegated click handler for actions
   document.addEventListener("click", (e) => {
