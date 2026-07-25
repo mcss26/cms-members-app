@@ -67,7 +67,7 @@ function generateEmailHtml(nombre: string, freeLink: string): string {
     <div style="padding: 40px 30px 48px;">
       
       <p style="color: #A3A3A3; font-size: 14px; line-height: 1.8; margin: 0 auto 40px; max-width: 380px; font-weight: 400;">
-        Felicidades! Recibiste una invitacion MEMBER FREE PASS para este Sabado! Te esperamos!
+        ¡Felicidades! Recibiste una invitación MEMBER FREE PASS para este sábado. ¡Te esperamos!
       </p>
       
       <div style="margin-bottom: 16px;">
