@@ -71,6 +71,7 @@
                   <button class="tab-chip active" data-view="solicitudes">Solicitudes</button>
                   <button type="button" class="tab-chip" data-view="cumple">Cumpleaños</button>
                   <button type="button" class="tab-chip" data-view="campanas">Campañas</button>
+                  <button type="button" class="tab-chip" data-view="config">Site config</button>
                 </div>
               </div>
             </div>
@@ -268,6 +269,21 @@
                      <div id="csv-progress-bar" style="height: 100%; width: 0%; background: var(--text-primary); transition: width 0.2s linear;"></div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- VIEW: Site Config -->
+            <div id="view-config" class="view-container hidden">
+              <!-- Site Config Header -->
+              <div class="row-flex align-center justify-between" style="padding-bottom: 16px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 24px;">
+                <div>
+                  <h3 style="font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; color: var(--text-primary); margin: 0 0 4px 0; letter-spacing: 0.05em;">Variables del Sistema</h3>
+                </div>
+              </div>
+
+              <!-- List -->
+              <div class="staff-list table-viewport table-shell cms-list" id="configList" role="list" aria-label="Lista de configuraciones">
+                <!-- JS Injected Content -->
               </div>
             </div>
 

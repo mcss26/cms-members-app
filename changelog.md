@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.2.0] - 2026-07-25
+- **feat:** Implement inline form editing in `Site config` tab for rapid modification of names, descriptions, and URLs with optimistic UI updates
+- **feat:** Add `Site config` tab to CMS with Swiss Brutalism UI for managing global system variables
 - **feat:** Add CSV Dropzone bulk email campaign (1-CTA design) to process external user databases
 - **fix:** Support both comma (,) and semicolon (;) separators in CSV parser to natively support Spanish Excel files
 - **fix:** Align 'FREE BATCH CSV' UI elements perfectly on a single horizontal flex row matching the 'ACTIVE MEMBERS' layout

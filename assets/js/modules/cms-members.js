@@ -63,8 +63,11 @@
     countBanned: document.getElementById("count-banned"),
 
     countCumple: document.getElementById("count-cumple"),
+    viewCampanas: document.getElementById("view-campanas"),
+    viewConfig: document.getElementById("view-config"),
+    configList: document.getElementById("configList"),
     birthdayToday: document.getElementById("birthday-today"),
-    tabs: document.querySelectorAll(".tab-chip[data-view]"),
+    tabChips: document.querySelectorAll(".tab-chip"),
     filterPills: document.querySelectorAll(".pill[data-status]"),
     
     btnPrevPage: document.getElementById("btnPrevPage"),
@@ -1036,7 +1039,7 @@
   function switchView(viewName) {
     state.currentView = viewName;
 
-    refs.tabs.forEach((t) => {
+    refs.tabChips.forEach((t) => {
       t.classList.toggle("active", t.dataset.view === viewName);
     });
 
@@ -1051,6 +1054,8 @@
       loadMembers(1);
     } else if (viewName === "cumple") {
       loadBirthdays();
+    } else if (viewName === "config") {
+      loadSiteConfig();
     }
   }
 
@@ -1059,7 +1064,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   // Tab switching
-  refs.tabs.forEach((tab) => {
+  refs.tabChips.forEach((tab) => {
     tab.addEventListener("click", () => switchView(tab.dataset.view));
   });
 
@@ -1200,11 +1205,148 @@
 
     if (action === "whatsapp") {
       sendWhatsAppGreeting(memberId);
+    } else if (action === "toggle-config") {
+      const currentState = actionBtn.dataset.active === "true";
+      toggleSiteConfig(memberId, currentState);
+    } else if (action === "save-config") {
+      const name = document.getElementById(`cfg_name_${memberId}`)?.value || "";
+      const desc = document.getElementById(`cfg_desc_${memberId}`)?.value || "";
+      const url = document.getElementById(`cfg_url_${memberId}`)?.value || "";
+      updateSiteConfigData(memberId, actionBtn, name, desc, url);
     } else {
       processAction(action, memberId);
     }
   });
 
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 10. Site Config
+  // ─────────────────────────────────────────────────────────────────────────
+  async function loadSiteConfig() {
+    if (!refs.configList) return;
+    window.Utils.setPageState(ui, { loading: true });
+    try {
+      const { data, error } = await window.sb
+        .from('site_config')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        refs.configList.innerHTML = '<div class="empty-state">No hay configuraciones.</div>';
+      } else {
+        refs.configList.innerHTML = data.map((c, i) => renderConfigCard(c, i)).join('');
+      }
+    } catch (err) {
+      console.error("[cms-members] Error cargando site_config:", err);
+      if (window.Toast) window.Toast.error("Error al cargar configuraciones");
+    } finally {
+      window.Utils.setPageState(ui, { loading: false });
+    }
+  }
+
+  function renderConfigCard(c, index) {
+    const isActive = c.is_active === true;
+    const switchClass = isActive ? "toggle-switch active" : "toggle-switch";
+    const dotClass = isActive ? "dot-success" : "dot-neutral";
+
+    return `
+        <div class="staff-row cms-config-card" role="listitem" data-global-index="${index + 1}" style="--stagger: ${index % 10};">
+            
+            <div class="cms-config-header row-flex align-center justify-between">
+                <div class="text-xs font-mono faint">#${index + 1} &mdash; ${escapeHTML(c.key)}</div>
+                <div class="row-flex align-center gap-8">
+                  <span class="status-dot ${dotClass}" title="${isActive ? 'ACTIVO' : 'INACTIVO'}"></span>
+                  <div class="${switchClass}" data-action="toggle-config" data-id="${c.id}" data-active="${isActive}" role="switch" aria-checked="${isActive}" tabindex="0">
+                    <div></div>
+                  </div>
+                </div>
+            </div>
+
+            <div class="cms-config-body">
+                <div class="input-wrap">
+                    <label for="cfg_name_${c.id}" class="text-xs font-mono text-primary">NOMBRE</label>
+                    <input type="text" id="cfg_name_${c.id}" class="input input-compact cms-config-input" value="${escapeHTML(c.name || "")}">
+                </div>
+
+                <div class="input-wrap">
+                    <label for="cfg_desc_${c.id}" class="text-xs font-mono text-primary">DESCRIPCIÓN</label>
+                    <textarea id="cfg_desc_${c.id}" class="input input-compact cms-config-input" rows="2">${escapeHTML(c.description || "")}</textarea>
+                </div>
+
+                <div class="input-wrap">
+                    <label for="cfg_url_${c.id}" class="text-xs font-mono text-primary">URL</label>
+                    <input type="text" id="cfg_url_${c.id}" class="input input-compact cms-config-input accent" value="${escapeHTML(c.url || "")}">
+                </div>
+            </div>
+
+            <div class="cms-config-footer row-flex align-center justify-end">
+                <button class="btn-secondary btn-sm" data-action="save-config" data-id="${c.id}">GUARDAR</button>
+            </div>
+        </div>
+    `;
+  }
+
+  async function toggleSiteConfig(id, currentState) {
+    try {
+      const newState = !currentState;
+      // Optimistic update in UI
+      const toggleBtn = document.querySelector(`[data-action="toggle-config"][data-id="${id}"]`);
+      if (toggleBtn) {
+        toggleBtn.dataset.active = newState;
+        toggleBtn.setAttribute('aria-checked', newState);
+        if (newState) {
+          toggleBtn.classList.add('active');
+        } else {
+          toggleBtn.classList.remove('active');
+        }
+        const dotNode = toggleBtn.closest('.cms-config-card').querySelector('.status-dot');
+        if (dotNode) {
+          dotNode.className = `status-dot ${newState ? 'dot-success' : 'dot-neutral'}`;
+          dotNode.title = newState ? 'ACTIVO' : 'INACTIVO';
+        }
+      }
+
+      const { error } = await window.sb
+        .from('site_config')
+        .update({ is_active: newState })
+        .eq('id', id);
+
+      if (error) throw error;
+      if (window.Toast) window.Toast.success("Configuración actualizada");
+    } catch (err) {
+      console.error("Error updating site_config:", err);
+      if (window.Toast) window.Toast.error("Error al actualizar configuración");
+      loadSiteConfig(); // Revert on error
+    }
+  }
+
+  async function updateSiteConfigData(id, btn, name, desc, url) {
+    const originalText = btn.textContent;
+    btn.textContent = "GUARDANDO...";
+    btn.disabled = true;
+    
+    try {
+      const { error } = await window.sb
+        .from('site_config')
+        .update({ 
+           name: name,
+           description: desc,
+           url: url
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+      if (window.Toast) window.Toast.success("Datos guardados correctamente");
+    } catch (err) {
+      console.error("Error saving site_config data:", err);
+      if (window.Toast) window.Toast.error("Error al guardar: " + err.message);
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // 11. Inicialización

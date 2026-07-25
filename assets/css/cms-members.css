@@ -620,3 +620,57 @@ body.app-shell.cms-members .page-card {
   pointer-events: none;
   overflow: hidden;
 }
+
+/* ── FASE 6: Site Config (Swiss Brutalism Form) ───────────────────────── */
+
+.cms-members .cms-config-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+  padding: 24px;
+}
+
+.cms-members .cms-config-header {
+  border-bottom: 1px solid var(--neutral-800);
+  padding-bottom: 16px;
+}
+
+.cms-members .cms-config-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cms-members .cms-config-body .input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cms-members .cms-config-input {
+  background: transparent;
+  border: 1px solid var(--neutral-700);
+  color: var(--text-primary);
+  border-radius: 0;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 100%;
+  resize: vertical;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.cms-members .cms-config-input:focus {
+  border-color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+  outline: none;
+}
+
+.cms-members .cms-config-input.accent {
+  color: var(--accent);
+}
+
+.cms-members .cms-config-footer {
+  padding-top: 8px;
+}
