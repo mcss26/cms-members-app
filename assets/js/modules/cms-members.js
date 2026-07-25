@@ -963,21 +963,36 @@
 
   // CSV Export
   async function downloadMembersCSV(type) {
-    if (window.Toast) window.Toast.info(`Generando CSV de ${type}...`);
+    if (window.Toast) window.Toast.info(`Generando CSV de ${type}... esto puede tardar un momento.`);
     try {
-      let query = window.sb.from('members').select('nombre, email');
-      if (type === 'activos') {
-        query = query.eq('status', 'active');
+      let allData = [];
+      let from = 0;
+      const limit = 1000;
+      
+      while (true) {
+        let query = window.sb.from('members').select('nombre, email');
+        if (type === 'activos') {
+          query = query.eq('status', 'active');
+        }
+        
+        const { data, error } = await query.range(from, from + limit - 1);
+        if (error) throw error;
+        
+        if (!data || data.length === 0) break;
+        
+        allData = allData.concat(data);
+        
+        if (data.length < limit) break;
+        from += limit;
       }
-      const { data, error } = await query;
-      if (error) throw error;
-      if (!data || data.length === 0) {
+
+      if (allData.length === 0) {
         if (window.Toast) window.Toast.info("No hay datos para exportar.");
         return;
       }
       
       let csvContent = "NOMBRE,EMAIL\n";
-      data.forEach(row => {
+      allData.forEach(row => {
         const nombre = (row.nombre || "").replace(/,/g, "").trim();
         const email = (row.email || "").replace(/,/g, "").trim();
         csvContent += `${nombre},${email}\n`;
@@ -993,7 +1008,7 @@
       link.click();
       document.body.removeChild(link);
       
-      if (window.Toast) window.Toast.success("CSV descargado exitosamente");
+      if (window.Toast) window.Toast.success(`CSV descargado exitosamente (${allData.length} registros)`);
     } catch(err) {
       console.error("[cms-members] Error exportando CSV:", err);
       if (window.Toast) window.Toast.error("Error al exportar CSV");
