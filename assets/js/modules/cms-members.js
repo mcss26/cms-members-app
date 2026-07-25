@@ -76,6 +76,17 @@
     sortIcon: document.getElementById("sortIcon"),
     btnExportTotal: document.getElementById("btn-export-total"),
     btnExportActivos: document.getElementById("btn-export-activos"),
+    
+    // CSV Batch
+    btnCsvCampaign: document.getElementById("btnCsvCampaign"),
+    csvFreeLink: document.getElementById("csvFreeLink"),
+    csvDropzone: document.getElementById("csv-dropzone"),
+    csvFileInput: document.getElementById("csv-file-input"),
+    csvFileName: document.getElementById("csv-file-name"),
+    csvProgressContainer: document.getElementById("csv-progress-container"),
+    csvSentCount: document.getElementById("csv-sent-count"),
+    csvTotalCount: document.getElementById("csv-total-count"),
+    csvProgressBar: document.getElementById("csv-progress-bar"),
   };
 
   const ui = { 
@@ -860,6 +871,167 @@
       if (refs.btnBulkCampaign) refs.btnBulkCampaign.disabled = false;
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 8.5 CSV Bulk Campaign
+  // ─────────────────────────────────────────────────────────────────────────
+  let csvContacts = [];
+
+  function handleCsvFile(file) {
+    if (!file || !file.name.toLowerCase().endsWith('.csv')) {
+      if (window.Toast) window.Toast.error("Por favor, sube un archivo CSV válido.");
+      return;
+    }
+    
+    if (refs.csvFileName) {
+       refs.csvFileName.textContent = `Archivo cargado: ${file.name}`;
+       refs.csvFileName.style.display = 'block';
+       refs.csvDropzone.style.display = 'none';
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+      
+      csvContacts = [];
+      for (let i = 1; i < lines.length; i++) { // Saltamos la cabecera
+        const parts = lines[i].split(",");
+        if (parts.length >= 2) {
+          const nombre = parts[0].replace(/"/g, "").trim();
+          const email = parts[1].replace(/"/g, "").trim();
+          if (nombre && email && email.includes('@')) {
+            csvContacts.push({ nombre, email });
+          }
+        }
+      }
+      
+      if (refs.csvTotalCount) refs.csvTotalCount.textContent = csvContacts.length;
+      if (refs.btnCsvCampaign && csvContacts.length > 0) {
+         refs.btnCsvCampaign.disabled = false;
+         refs.btnCsvCampaign.textContent = `ENVIAR A ${csvContacts.length} CONTACTOS`;
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  if (refs.csvDropzone && refs.csvFileInput) {
+    refs.csvDropzone.addEventListener("click", () => refs.csvFileInput.click());
+    
+    refs.csvDropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      refs.csvDropzone.style.borderColor = "var(--text-primary)";
+      refs.csvDropzone.style.color = "var(--text-primary)";
+    });
+
+    refs.csvDropzone.addEventListener("dragleave", () => {
+      refs.csvDropzone.style.borderColor = "var(--neutral-600)";
+      refs.csvDropzone.style.color = "var(--neutral-400)";
+    });
+
+    refs.csvDropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      refs.csvDropzone.style.borderColor = "var(--neutral-600)";
+      refs.csvDropzone.style.color = "var(--neutral-400)";
+      
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        refs.csvFileInput.files = e.dataTransfer.files;
+        handleCsvFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    refs.csvFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleCsvFile(e.target.files[0]);
+      }
+    });
+  }
+
+  async function callBulkCsvEmailFn(payload) {
+    const { data: { session } } = await window.sb.auth.getSession();
+    if (!session) throw new Error("No hay sesión activa");
+    
+    // Obtenemos la URL de las funciones directamente de window.APP_CONFIG.SUPABASE_URL
+    const url = `${window.APP_CONFIG.SUPABASE_URL}/functions/v1/bulk-email-csv`;
+    
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": window.APP_CONFIG.SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    const result = await resp.json();
+    if (!resp.ok || !result.success) {
+      const details = result.details ? ` (${result.details})` : "";
+      throw new Error((result.error || "Error en el envío") + details);
+    }
+    return result;
+  }
+
+  async function executeCsvCampaign() {
+    const freeLink = refs.csvFreeLink?.value.trim();
+    if (!freeLink) {
+      if (window.Toast) window.Toast.warning("Falta el link de la campaña FREE PASS");
+      return;
+    }
+    if (csvContacts.length === 0) {
+      if (window.Toast) window.Toast.warning("No hay contactos válidos cargados en el CSV");
+      return;
+    }
+
+    const confirmMsg = `¿Estás seguro de enviar la campaña a los ${csvContacts.length} contactos del CSV?`;
+    const confirmed = await window.Utils.confirmModal(confirmMsg);
+    if (!confirmed) return;
+
+    if (refs.csvProgressContainer) refs.csvProgressContainer.style.display = "block";
+    if (refs.btnCsvCampaign) refs.btnCsvCampaign.disabled = true;
+    if (refs.csvSentCount) refs.csvSentCount.textContent = "0";
+    if (refs.csvProgressBar) refs.csvProgressBar.style.width = "0%";
+
+    let totalSent = 0;
+    const batchSize = 100;
+
+    try {
+      if (window.Toast) window.Toast.info("Iniciando envío masivo por CSV...");
+      
+      for (let i = 0; i < csvContacts.length; i += batchSize) {
+        const batch = csvContacts.slice(i, i + batchSize);
+        
+        const result = await callBulkCsvEmailFn({
+          freeLink: freeLink,
+          contacts: batch
+        });
+        
+        const sent = result.sentCount || 0;
+        totalSent += sent;
+        
+        if (refs.csvSentCount) refs.csvSentCount.textContent = String(totalSent);
+        if (refs.csvProgressBar) {
+           const pct = Math.min(100, (totalSent / csvContacts.length) * 100);
+           refs.csvProgressBar.style.width = `${pct}%`;
+        }
+        
+        if (i + batchSize < csvContacts.length) {
+          // Pause 2 seconds to respect Resend Rate Limits
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+      
+      if (window.Toast) window.Toast.success(`Campaña CSV finalizada. Se enviaron ${totalSent} correos.`);
+    } catch (err) {
+      console.error("Bulk CSV Campaign Error:", err);
+      window.Utils.alertModal(`El envío se detuvo por un error.\nSe procesaron ${totalSent} correos.\nError: ${err.message}`, "Error en Envío Masivo CSV");
+    } finally {
+      if (refs.btnCsvCampaign) refs.btnCsvCampaign.disabled = false;
+    }
+  }
+
+  // Bind execution
+  refs.btnCsvCampaign?.addEventListener("click", executeCsvCampaign);
 
   // ─────────────────────────────────────────────────────────────────────────
   // 9. Vista Switching

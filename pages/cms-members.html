@@ -234,6 +234,37 @@
                   </div>
                 </div>
               </div>
+              
+              <!-- FREE BATCH CSV -->
+              <div class="summary-metric-card" style="max-width: 1000px; padding: 32px; margin-top: 16px;">
+                <div style="margin-bottom: 24px;">
+                  <h3 class="dashboard-title" style="font-size: 24px; margin: 0;">FREE BATCH CSV</h3>
+                </div>
+                
+                <div id="csv-dropzone" style="border: 2px dashed var(--neutral-600); padding: 32px; text-align: center; margin-bottom: 24px; cursor: pointer; color: var(--neutral-400); font-family: var(--font-mono); font-size: 13px;">
+                   Arrastra tu archivo CSV aquí o haz clic para seleccionar
+                </div>
+                <input type="file" id="csv-file-input" accept=".csv" class="hidden" style="display: none;">
+                <div id="csv-file-name" style="margin-bottom: 24px; font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); display: none;"></div>
+                
+                <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">LINK FREE PASS</label>
+                    <input type="url" id="csvFreeLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                  </div>
+                  <button id="btnCsvCampaign" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;" disabled>ENVIAR CSV</button>
+                </div>
+
+                <div id="csv-progress-container" style="display: none; border-top: 1px solid var(--neutral-800); padding-top: 24px; background: transparent;">
+                  <div class="row-flex justify-between align-center" style="margin-bottom: 16px;">
+                     <label class="summary-metric-label" style="margin: 0;">PROGRESO DEL CSV</label>
+                     <label class="summary-metric-label" style="margin: 0; color: var(--text-primary); font-size: 14px;"><span id="csv-sent-count">0</span> / <span id="csv-total-count">0</span> PROCESADOS</label>
+                  </div>
+                  <div style="height: 2px; background: var(--neutral-800); overflow: hidden;">
+                     <div id="csv-progress-bar" style="height: 100%; width: 0%; background: var(--text-primary); transition: width 0.2s linear;"></div>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
