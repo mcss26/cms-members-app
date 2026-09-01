@@ -72,6 +72,7 @@
                   <button type="button" class="tab-chip" data-view="cumple">Cumpleaños</button>
                   <button type="button" class="tab-chip" data-view="campanas">Campañas</button>
                   <button type="button" class="tab-chip" data-view="config">Site config</button>
+                  <button type="button" class="tab-chip" data-view="shop">Shop</button>
                 </div>
               </div>
             </div>
@@ -346,6 +347,42 @@
               </div>
             </div>
 
+            <!-- VIEW: Shop -->
+            <div id="view-shop" class="view-container hidden">
+              <!-- Header & Categories -->
+              <div class="row-flex align-center justify-between" style="padding-bottom: 16px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 24px;">
+                <div>
+                  <h3 style="font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; color: var(--text-primary); margin: 0 0 4px 0; letter-spacing: 0.05em;">Categorías Principales</h3>
+                </div>
+                <button id="btnNewCategory" class="btn-secondary btn-sm">+ NUEVA CATEGORÍA</button>
+              </div>
+              <div class="staff-list table-viewport table-shell cms-list" id="shopCategoriesList" style="margin-bottom: 48px;">
+                <!-- JS Injected -->
+              </div>
+
+              <!-- Header & Subcategories -->
+              <div class="row-flex align-center justify-between" style="padding-bottom: 16px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 24px;">
+                <div>
+                  <h3 style="font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; color: var(--text-primary); margin: 0 0 4px 0; letter-spacing: 0.05em;">Subcategorías</h3>
+                </div>
+                <button id="btnNewSubcategory" class="btn-secondary btn-sm">+ NUEVA SUBCATEGORÍA</button>
+              </div>
+              <div class="staff-list table-viewport table-shell cms-list" id="shopSubcategoriesList" style="margin-bottom: 48px;">
+                <!-- JS Injected -->
+              </div>
+
+              <!-- Header & Products -->
+              <div class="row-flex align-center justify-between" style="padding-bottom: 16px; border-bottom: 1px solid var(--neutral-800); margin-bottom: 24px;">
+                <div>
+                  <h3 style="font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; color: var(--text-primary); margin: 0 0 4px 0; letter-spacing: 0.05em;">Productos del Catálogo</h3>
+                </div>
+                <button id="btnNewProduct" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; height: 40px; padding: 0 24px;">+ NUEVO PRODUCTO</button>
+              </div>
+              <div class="staff-list table-viewport table-shell cms-list" id="shopProductsList" style="margin-bottom: 48px;">
+                <!-- JS Injected -->
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -363,6 +400,7 @@
   <script defer src="../assets/js/core/auth.js?v=2"></script>
   <script defer src="../assets/js/core/toast.js"></script>
   <script defer src="../assets/js/modules/cms-members.js?v=2"></script>
+  <script defer src="../assets/js/modules/shop-admin.js"></script>
   </body>
 
 </html>
