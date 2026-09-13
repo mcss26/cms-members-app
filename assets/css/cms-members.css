@@ -672,20 +672,63 @@ body.app-shell.cms-members .page-card {
 }
 
 .cms-members .cms-config-footer {
-  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--neutral-800);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.cms-members .cms-config-switches {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cms-members .cms-toggle-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cms-members .cms-toggle-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted, #71717a);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.cms-members .cms-toggle-control:hover .cms-toggle-label {
+  color: var(--text-primary);
+}
+
+.cms-members .cms-toggle-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--neutral-800, #27272a);
 }
 
 /* ── FASE 12: Toggle Switch ───────────────────────────────────────────── */
 
 .cms-members .toggle-switch {
-  width: 36px;
+  width: 38px;
   height: 20px;
   border-radius: 20px;
-  background: var(--neutral-700);
+  background: var(--neutral-800, #27272a);
   position: relative;
   cursor: pointer;
-  transition: background 0.3s ease, border-color 0.3s ease;
-  border: 1px solid var(--neutral-600);
+  transition: background 0.25s ease, border-color 0.25s ease;
+  border: 1px solid var(--neutral-700, #3f3f46);
+  flex-shrink: 0;
 }
 
 .cms-members .toggle-switch > div {
@@ -696,7 +739,7 @@ body.app-shell.cms-members .page-card {
   position: absolute;
   top: 2px;
   left: 2px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .cms-members .toggle-switch.active {
@@ -705,7 +748,16 @@ body.app-shell.cms-members .page-card {
 }
 
 .cms-members .toggle-switch.active > div {
-  transform: translateX(16px);
+  transform: translateX(18px);
+}
+
+.cms-members .toggle-switch.toggle-agotado.active {
+  background: var(--red-400, #f87171) !important;
+  border-color: var(--red-400, #f87171) !important;
+}
+
+.cms-members .toggle-switch.toggle-agotado.active > div {
+  transform: translateX(18px);
 }
 
 .cms-members .status-dot {
@@ -717,4 +769,5 @@ body.app-shell.cms-members .page-card {
 
 .cms-members .dot-success { background: var(--green-500, #22c55e); }
 .cms-members .dot-neutral { background: var(--neutral-600); }
+
 

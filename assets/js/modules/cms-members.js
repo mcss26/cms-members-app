@@ -1294,6 +1294,16 @@
 
   // Delegated click handler for actions
   document.addEventListener("click", (e) => {
+    // If click is on a cms-toggle-label or cms-toggle-control, redirect click to the switch
+    const toggleControl = e.target.closest(".cms-toggle-control");
+    if (toggleControl && !e.target.closest(".toggle-switch")) {
+      const switchEl = toggleControl.querySelector(".toggle-switch");
+      if (switchEl) {
+        switchEl.click();
+        return;
+      }
+    }
+
     const actionBtn = e.target.closest("[data-action]");
     if (!actionBtn) return;
     
@@ -1317,6 +1327,14 @@
       updateSiteConfigData(memberId, actionBtn, name, desc, url);
     } else {
       processAction(action, memberId);
+    }
+  });
+
+  // Keyboard accessibility for toggle switches
+  document.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("toggle-switch")) {
+      e.preventDefault();
+      e.target.click();
     }
   });
 
@@ -1351,30 +1369,18 @@
   function renderConfigCard(c, index) {
     const isActive = c.is_active === true;
     const switchClass = isActive ? "toggle-switch active" : "toggle-switch";
-    const dotClass = isActive ? "dot-success" : "dot-neutral";
 
     // Detect AGOTADO and prepare clean text
     const isAgotado = c.name?.toUpperCase().includes('AGOTADO') || c.description?.toUpperCase().includes('AGOTADO');
-    const switchAgotadoClass = isAgotado ? "toggle-switch active" : "toggle-switch";
+    const switchAgotadoClass = isAgotado ? "toggle-switch toggle-agotado active" : "toggle-switch toggle-agotado";
     const cleanName = c.name ? c.name.replace(/-?\s*AGOTAD[OA]/i, '').trim() : "";
     const cleanDesc = c.description ? c.description.replace(/\|/g, '\n').replace(/-?\s*AGOTAD[OA]/i, '').trim() : "";
 
     return `
         <div class="staff-row cms-config-card" role="listitem" data-global-index="${index + 1}" style="--stagger: ${index % 10};">
             
-            <div class="cms-config-header row-flex align-center justify-between">
+            <div class="cms-config-header">
                 <div class="text-xs font-mono faint">#${index + 1} &mdash; ${escapeHTML(c.key)}</div>
-                <div class="row-flex align-center gap-8">
-                  <span class="status-dot ${dotClass}" title="${isActive ? 'ACTIVO' : 'INACTIVO'}"></span>
-                  <div class="${switchClass}" data-action="toggle-config" data-id="${c.id}" data-active="${isActive}" role="switch" aria-checked="${isActive}" tabindex="0" title="Activar/Desactivar">
-                    <div></div>
-                  </div>
-                  <div style="width: 1px; height: 16px; background: var(--border); margin: 0 4px;"></div>
-                  <span class="text-xs font-mono" style="color: ${isAgotado ? 'var(--red-400)' : 'var(--text-muted)'}">AGOTADO</span>
-                  <div class="${switchAgotadoClass}" data-action="toggle-agotado" data-id="${c.id}" data-active="${isAgotado}" role="switch" aria-checked="${isAgotado}" tabindex="0" style="${isAgotado ? 'border-color: var(--red-400); background: var(--red-400);' : ''}">
-                    <div></div>
-                  </div>
-                </div>
             </div>
 
             <div class="cms-config-body">
@@ -1394,7 +1400,25 @@
                 </div>
             </div>
 
-            <div class="cms-config-footer row-flex align-center justify-end">
+            <div class="cms-config-footer">
+                <div class="cms-config-switches">
+                    <div class="cms-toggle-control" title="Visibilidad en la web (Activo/Inactivo)">
+                        <span class="cms-toggle-label" id="label_active_${c.id}" style="color: ${isActive ? 'var(--green-500, #22c55e)' : 'var(--text-muted)'}">ACTIVO</span>
+                        <div class="${switchClass}" data-action="toggle-config" data-id="${c.id}" data-active="${isActive}" role="switch" aria-checked="${isActive}" tabindex="0">
+                            <div></div>
+                        </div>
+                    </div>
+
+                    <div class="cms-toggle-divider"></div>
+
+                    <div class="cms-toggle-control" title="Marcar como agotado (deshabilita compra en frontend)">
+                        <span class="cms-toggle-label" id="label_agotado_${c.id}" style="color: ${isAgotado ? 'var(--red-400, #f87171)' : 'var(--text-muted)'}">AGOTADO</span>
+                        <div class="${switchAgotadoClass}" data-action="toggle-agotado" data-id="${c.id}" data-active="${isAgotado}" role="switch" aria-checked="${isAgotado}" tabindex="0">
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="btn-secondary btn-sm" data-action="save-config" data-id="${c.id}">GUARDAR</button>
             </div>
         </div>
@@ -1414,10 +1438,9 @@
         } else {
           toggleBtn.classList.remove('active');
         }
-        const dotNode = toggleBtn.closest('.cms-config-card').querySelector('.status-dot');
-        if (dotNode) {
-          dotNode.className = `status-dot ${newState ? 'dot-success' : 'dot-neutral'}`;
-          dotNode.title = newState ? 'ACTIVO' : 'INACTIVO';
+        const labelEl = document.getElementById(`label_active_${id}`);
+        if (labelEl) {
+          labelEl.style.color = newState ? 'var(--green-500, #22c55e)' : 'var(--text-muted)';
         }
       }
 
@@ -1427,7 +1450,7 @@
         .eq('id', id);
 
       if (error) throw error;
-      if (window.Toast) window.Toast.success("Configuración actualizada");
+      if (window.Toast) window.Toast.success(`Configuración ${newState ? 'activada' : 'desactivada'}`);
     } catch (err) {
       console.error("Error updating site_config:", err);
       if (window.Toast) window.Toast.error("Error al actualizar configuración");
@@ -1447,17 +1470,13 @@
         toggleBtn.setAttribute('aria-checked', newState);
         if (newState) {
           toggleBtn.classList.add('active');
-          toggleBtn.style.borderColor = 'var(--red-400)';
-          toggleBtn.style.background = 'var(--red-400)';
         } else {
           toggleBtn.classList.remove('active');
-          toggleBtn.style.borderColor = '';
-          toggleBtn.style.background = '';
         }
         
-        const textNode = toggleBtn.previousElementSibling;
-        if (textNode && textNode.textContent === 'AGOTADO') {
-          textNode.style.color = newState ? 'var(--red-400)' : 'var(--text-muted)';
+        const labelEl = document.getElementById(`label_agotado_${id}`);
+        if (labelEl) {
+          labelEl.style.color = newState ? 'var(--red-400, #f87171)' : 'var(--text-muted)';
         }
         
         const nameInput = document.getElementById(`cfg_name_${id}`);
