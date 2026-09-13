@@ -1307,6 +1307,9 @@
     } else if (action === "toggle-config") {
       const currentState = actionBtn.dataset.active === "true";
       toggleSiteConfig(memberId, currentState);
+    } else if (action === "toggle-agotado") {
+      const currentState = actionBtn.dataset.active === "true";
+      toggleAgotadoConfig(memberId, currentState);
     } else if (action === "save-config") {
       const name = document.getElementById(`cfg_name_${memberId}`)?.value || "";
       const desc = document.getElementById(`cfg_desc_${memberId}`)?.value || "";
@@ -1350,6 +1353,12 @@
     const switchClass = isActive ? "toggle-switch active" : "toggle-switch";
     const dotClass = isActive ? "dot-success" : "dot-neutral";
 
+    // Detect AGOTADO and prepare clean text
+    const isAgotado = c.name?.toUpperCase().includes('AGOTADO') || c.description?.toUpperCase().includes('AGOTADO');
+    const switchAgotadoClass = isAgotado ? "toggle-switch active" : "toggle-switch";
+    const cleanName = c.name ? c.name.replace(/-?\s*AGOTAD[OA]/i, '').trim() : "";
+    const cleanDesc = c.description ? c.description.replace(/\|/g, '\n').replace(/-?\s*AGOTAD[OA]/i, '').trim() : "";
+
     return `
         <div class="staff-row cms-config-card" role="listitem" data-global-index="${index + 1}" style="--stagger: ${index % 10};">
             
@@ -1357,7 +1366,12 @@
                 <div class="text-xs font-mono faint">#${index + 1} &mdash; ${escapeHTML(c.key)}</div>
                 <div class="row-flex align-center gap-8">
                   <span class="status-dot ${dotClass}" title="${isActive ? 'ACTIVO' : 'INACTIVO'}"></span>
-                  <div class="${switchClass}" data-action="toggle-config" data-id="${c.id}" data-active="${isActive}" role="switch" aria-checked="${isActive}" tabindex="0">
+                  <div class="${switchClass}" data-action="toggle-config" data-id="${c.id}" data-active="${isActive}" role="switch" aria-checked="${isActive}" tabindex="0" title="Activar/Desactivar">
+                    <div></div>
+                  </div>
+                  <div style="width: 1px; height: 16px; background: var(--border); margin: 0 4px;"></div>
+                  <span class="text-xs font-mono" style="color: ${isAgotado ? 'var(--red-400)' : 'var(--text-muted)'}">AGOTADO</span>
+                  <div class="${switchAgotadoClass}" data-action="toggle-agotado" data-id="${c.id}" data-active="${isAgotado}" role="switch" aria-checked="${isAgotado}" tabindex="0" style="${isAgotado ? 'border-color: var(--red-400); background: var(--red-400);' : ''}">
                     <div></div>
                   </div>
                 </div>
@@ -1366,12 +1380,12 @@
             <div class="cms-config-body">
                 <div class="input-wrap">
                     <label for="cfg_name_${c.id}" class="text-xs font-mono text-primary">NOMBRE</label>
-                    <input type="text" id="cfg_name_${c.id}" class="input input-compact cms-config-input" value="${escapeHTML(c.name || "")}">
+                    <input type="text" id="cfg_name_${c.id}" class="input input-compact cms-config-input" value="${escapeHTML(cleanName)}">
                 </div>
 
                 <div class="input-wrap">
                     <label for="cfg_desc_${c.id}" class="text-xs font-mono text-primary">DESCRIPCIÓN</label>
-                    <textarea id="cfg_desc_${c.id}" class="input input-compact cms-config-input" rows="2">${escapeHTML(c.description || "")}</textarea>
+                    <textarea id="cfg_desc_${c.id}" class="input input-compact cms-config-input" rows="2">${escapeHTML(cleanDesc)}</textarea>
                 </div>
 
                 <div class="input-wrap">
@@ -1421,16 +1435,69 @@
     }
   }
 
+  async function toggleAgotadoConfig(id, currentState) {
+    try {
+      const newState = !currentState;
+      // Optimistic update in UI
+      const toggleBtn = document.querySelector(`[data-action="toggle-agotado"][data-id="${id}"]`);
+      let cleanName = "";
+      
+      if (toggleBtn) {
+        toggleBtn.dataset.active = newState;
+        toggleBtn.setAttribute('aria-checked', newState);
+        if (newState) {
+          toggleBtn.classList.add('active');
+          toggleBtn.style.borderColor = 'var(--red-400)';
+          toggleBtn.style.background = 'var(--red-400)';
+        } else {
+          toggleBtn.classList.remove('active');
+          toggleBtn.style.borderColor = '';
+          toggleBtn.style.background = '';
+        }
+        
+        const textNode = toggleBtn.previousElementSibling;
+        if (textNode && textNode.textContent === 'AGOTADO') {
+          textNode.style.color = newState ? 'var(--red-400)' : 'var(--text-muted)';
+        }
+        
+        const nameInput = document.getElementById(`cfg_name_${id}`);
+        if (nameInput) {
+            cleanName = nameInput.value.trim();
+        }
+      }
+
+      const finalName = newState ? (cleanName ? `${cleanName} - AGOTADO` : "AGOTADO") : cleanName;
+
+      const { error } = await window.sb
+        .from('site_config')
+        .update({ name: finalName })
+        .eq('id', id);
+
+      if (error) throw error;
+      if (window.Toast) window.Toast.success(`Estado AGOTADO ${newState ? 'activado' : 'desactivado'}`);
+    } catch (err) {
+      console.error("Error updating site_config agotado:", err);
+      if (window.Toast) window.Toast.error("Error al actualizar estado");
+      loadSiteConfig(); // Revert on error
+    }
+  }
+
   async function updateSiteConfigData(id, btn, name, desc, url) {
     const originalText = btn.textContent;
     btn.textContent = "GUARDANDO...";
     btn.disabled = true;
     
+    // Check toggle state to preserve 'AGOTADO' label
+    const toggleBtn = document.querySelector(`[data-action="toggle-agotado"][data-id="${id}"]`);
+    const isAgotado = toggleBtn && toggleBtn.dataset.active === "true";
+    const cleanName = name.trim();
+    const finalName = isAgotado ? (cleanName ? `${cleanName} - AGOTADO` : "AGOTADO") : cleanName;
+
     try {
       const { error } = await window.sb
         .from('site_config')
         .update({ 
-           name: name,
+           name: finalName,
            description: desc,
            url: url
         })
