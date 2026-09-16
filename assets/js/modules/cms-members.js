@@ -101,6 +101,16 @@
     csvVipSentCount: document.getElementById("csv-vip-sent-count"),
     csvVipTotalCount: document.getElementById("csv-vip-total-count"),
     csvVipProgressBar: document.getElementById("csv-vip-progress-bar"),
+    
+    // La Granjaus Campaign
+    granjausFreeLink: document.getElementById("granjausFreeLink"),
+    granjausPriorityLink: document.getElementById("granjausPriorityLink"),
+    btnGranjausCampaign: document.getElementById("btnGranjausCampaign"),
+    granjausTestEmail: document.getElementById("granjausTestEmail"),
+    btnGranjausTest: document.getElementById("btnGranjausTest"),
+    granjausProgressContainer: document.getElementById("granjaus-progress-container"),
+    granjausSentCount: document.getElementById("granjaus-sent-count"),
+    granjausProgressBar: document.getElementById("granjaus-progress-bar"),
   };
 
   const ui = { 
@@ -887,6 +897,126 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // LA GRANJAUS CAMPAIGN
+  // ─────────────────────────────────────────────────────────────────────────
+  async function callGranjausEmailFn(payload) {
+    const authFnUrl = `${window.APP_CONFIG.SUPABASE_URL}/functions/v1/bulk-email-granjaus`;
+    const resp = await fetch(authFnUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": window.APP_CONFIG.SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${window.APP_CONFIG.SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await resp.json();
+    if (!resp.ok || !result.success) {
+      const details = result.details ? ` (${result.details})` : "";
+      throw new Error((result.error || "Error en el envío") + details);
+    }
+    return result;
+  }
+
+  async function executeGranjausCampaign() {
+    const freeLink = refs.granjausFreeLink?.value.trim();
+    const priorityLink = refs.granjausPriorityLink?.value.trim();
+
+    if (!freeLink || !priorityLink) {
+      if (window.Toast) window.Toast.warning("Faltan los links de la campaña La Granjaus");
+      return;
+    }
+
+    const totalActiveStr = refs.countActivo?.textContent || "0";
+    const totalActive = parseInt(totalActiveStr.replace(/\D/g, ''), 10);
+    
+    if (totalActive === 0) {
+      if (window.Toast) window.Toast.warning("No hay miembros activos para enviar.");
+      return;
+    }
+
+    const confirmMsg = `¿Estás seguro de enviar LA GRANJAUS a TODOS los miembros activos (aprox ${totalActive})?`;
+    const confirmed = await window.Utils.confirmModal(confirmMsg);
+    if (!confirmed) return;
+
+    if (refs.granjausProgressContainer) refs.granjausProgressContainer.style.display = "block";
+    if (refs.btnGranjausCampaign) refs.btnGranjausCampaign.disabled = true;
+    if (refs.granjausSentCount) refs.granjausSentCount.textContent = "0";
+    if (refs.granjausProgressBar) refs.granjausProgressBar.style.width = "0%";
+
+    let hasMore = true;
+    let lastId = '00000000-0000-0000-0000-000000000000';
+    let totalSent = 0;
+
+    try {
+      if (window.Toast) window.Toast.info("Iniciando envío La Granjaus...");
+      
+      while (hasMore) {
+        const result = await callGranjausEmailFn({
+          isTest: false,
+          freeLink: freeLink,
+          priorityLink: priorityLink,
+          last_id: lastId
+        });
+        
+        const sent = result.sentCount || 0;
+        const processed = result.processedCount || sent;
+        totalSent += sent;
+        
+        if (refs.granjausSentCount) refs.granjausSentCount.textContent = String(totalSent);
+        if (refs.granjausProgressBar) {
+           const pct = totalActive > 0 ? Math.min(100, (totalSent / totalActive) * 100) : 100;
+           refs.granjausProgressBar.style.width = `${pct}%`;
+        }
+
+        if (processed < 100 || !result.next_last_id) {
+          hasMore = false;
+        } else {
+          lastId = result.next_last_id;
+          // Pause 2 seconds to respect Resend Rate Limits
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+      
+      if (window.Toast) window.Toast.success(`La Granjaus finalizada. Se enviaron ${totalSent} correos.`);
+    } catch (err) {
+      console.error("Granjaus Campaign Error:", err);
+      window.Utils.alertModal(`El envío se detuvo por un error.\nSe enviaron ${totalSent} correos.\nError: ${err.message}`, "Error en La Granjaus");
+    } finally {
+      if (refs.btnGranjausCampaign) refs.btnGranjausCampaign.disabled = false;
+    }
+  }
+
+  async function executeGranjausTestCampaign() {
+    const freeLink = refs.granjausFreeLink?.value.trim();
+    const priorityLink = refs.granjausPriorityLink?.value.trim();
+    const testEmail = refs.granjausTestEmail?.value.trim();
+
+    if (!freeLink || !priorityLink) {
+      if (window.Toast) window.Toast.warning("Faltan los links de la campaña");
+      return;
+    }
+    if (!testEmail) {
+      if (window.Toast) window.Toast.warning("Falta el email de prueba");
+      return;
+    }
+
+    try {
+      if (window.Toast) window.Toast.info("Enviando prueba La Granjaus...");
+      await callGranjausEmailFn({
+        isTest: true,
+        testEmail: testEmail,
+        freeLink: freeLink,
+        priorityLink: priorityLink
+      });
+      if (window.Toast) window.Toast.success("Email de prueba enviado exitosamente.");
+    } catch (err) {
+      console.error("Granjaus Test Error:", err);
+      if (window.Toast) window.Toast.error("Error: " + err.message);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // 8.5 CSV Bulk Campaign (FREE & VIP)
   // ─────────────────────────────────────────────────────────────────────────
   let csvContacts = [];
@@ -1227,6 +1357,8 @@
   // Bulk Email
   refs.btnBulkCampaign?.addEventListener("click", executeBulkCampaign);
   refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
+  refs.btnGranjausCampaign?.addEventListener("click", executeGranjausCampaign);
+  refs.btnGranjausTest?.addEventListener("click", executeGranjausTestCampaign);
   if (refs.btnCsvCampaign) {
     refs.btnCsvCampaign.addEventListener("click", () => executeCsvCampaign('free'));
   }
