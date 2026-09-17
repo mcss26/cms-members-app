@@ -111,6 +111,19 @@
     granjausProgressContainer: document.getElementById("granjaus-progress-container"),
     granjausSentCount: document.getElementById("granjaus-sent-count"),
     granjausProgressBar: document.getElementById("granjaus-progress-bar"),
+    
+    // La Granjaus Paid CSV
+    granjausPaidLink: document.getElementById("granjausPaidLink"),
+    btnGranjausPaidCsv: document.getElementById("btnGranjausPaidCsv"),
+    granjausPaidTestEmail: document.getElementById("granjausPaidTestEmail"),
+    btnGranjausPaidTest: document.getElementById("btnGranjausPaidTest"),
+    granjausPaidCsvDropzone: document.getElementById("granjaus-paid-csv-dropzone"),
+    granjausPaidCsvFileInput: document.getElementById("granjaus-paid-csv-file-input"),
+    granjausPaidCsvFileName: document.getElementById("granjaus-paid-csv-file-name"),
+    granjausPaidCsvProgressContainer: document.getElementById("granjaus-paid-csv-progress-container"),
+    granjausPaidCsvSentCount: document.getElementById("granjaus-paid-csv-sent-count"),
+    granjausPaidCsvTotalCount: document.getElementById("granjaus-paid-csv-total-count"),
+    granjausPaidCsvProgressBar: document.getElementById("granjaus-paid-csv-progress-bar"),
   };
 
   const ui = { 
@@ -1017,6 +1030,188 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // LA GRANJAUS PAID CSV CAMPAIGN
+  // ─────────────────────────────────────────────────────────────────────────
+  let granjausPaidCsvContacts = [];
+
+  function handleGranjausPaidCsvFile(file) {
+    if (!file || !file.name.toLowerCase().endsWith('.csv')) {
+      if (window.Toast) window.Toast.error("Por favor, sube un archivo CSV válido.");
+      return;
+    }
+    
+    if (refs.granjausPaidCsvFileName) {
+       refs.granjausPaidCsvFileName.textContent = `Archivo cargado: ${file.name}`;
+       refs.granjausPaidCsvFileName.style.display = 'block';
+       refs.granjausPaidCsvDropzone.style.display = 'none';
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+      
+      granjausPaidCsvContacts = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/[,;]/);
+        if (parts.length >= 2) {
+          const nombre = parts[0].replace(/"/g, "").trim();
+          const email = parts[1].replace(/"/g, "").trim();
+          if (nombre && email && email.includes('@')) {
+            granjausPaidCsvContacts.push({ nombre, email });
+          }
+        }
+      }
+      
+      if (refs.granjausPaidCsvTotalCount) refs.granjausPaidCsvTotalCount.textContent = granjausPaidCsvContacts.length;
+      if (refs.btnGranjausPaidCsv && granjausPaidCsvContacts.length > 0) {
+         refs.btnGranjausPaidCsv.textContent = `ENVIAR A ${granjausPaidCsvContacts.length} CONTACTOS`;
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  if (refs.granjausPaidCsvDropzone && refs.granjausPaidCsvFileInput) {
+    refs.granjausPaidCsvDropzone.addEventListener("click", () => refs.granjausPaidCsvFileInput.click());
+    
+    refs.granjausPaidCsvDropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      refs.granjausPaidCsvDropzone.style.borderColor = "var(--text-primary)";
+      refs.granjausPaidCsvDropzone.style.color = "var(--text-primary)";
+    });
+
+    refs.granjausPaidCsvDropzone.addEventListener("dragleave", () => {
+      refs.granjausPaidCsvDropzone.style.borderColor = "var(--neutral-600)";
+      refs.granjausPaidCsvDropzone.style.color = "var(--neutral-400)";
+    });
+
+    refs.granjausPaidCsvDropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      refs.granjausPaidCsvDropzone.style.borderColor = "var(--neutral-600)";
+      refs.granjausPaidCsvDropzone.style.color = "var(--neutral-400)";
+      
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        refs.granjausPaidCsvFileInput.files = e.dataTransfer.files;
+        handleGranjausPaidCsvFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    refs.granjausPaidCsvFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleGranjausPaidCsvFile(e.target.files[0]);
+      }
+    });
+  }
+
+  async function callGranjausPaidCsvFn(payload) {
+    const { data: { session } } = await window.sb.auth.getSession();
+    if (!session) throw new Error("No hay sesión activa");
+    
+    const url = `${window.APP_CONFIG.SUPABASE_URL}/functions/v1/bulk-email-granjaus-csv`;
+    
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": window.APP_CONFIG.SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    const result = await resp.json();
+    if (!resp.ok || !result.success) {
+      const details = result.details ? ` (${result.details})` : "";
+      throw new Error((result.error || "Error en el envío") + details);
+    }
+    return result;
+  }
+
+  async function executeGranjausPaidCsvCampaign() {
+    const theLink = refs.granjausPaidLink?.value.trim();
+    if (!theLink) {
+      if (window.Toast) window.Toast.warning("Falta el link de anticipadas");
+      return;
+    }
+    if (granjausPaidCsvContacts.length === 0) {
+      if (window.Toast) window.Toast.warning("No hay contactos válidos cargados en el CSV");
+      return;
+    }
+
+    const confirmMsg = `¿Estás seguro de enviar La Granjaus Paid a los ${granjausPaidCsvContacts.length} contactos del CSV?`;
+    const confirmed = await window.Utils.confirmModal(confirmMsg);
+    if (!confirmed) return;
+
+    if (refs.granjausPaidCsvProgressContainer) refs.granjausPaidCsvProgressContainer.style.display = "block";
+    if (refs.btnGranjausPaidCsv) refs.btnGranjausPaidCsv.disabled = true;
+    if (refs.granjausPaidCsvSentCount) refs.granjausPaidCsvSentCount.textContent = "0";
+    if (refs.granjausPaidCsvProgressBar) refs.granjausPaidCsvProgressBar.style.width = "0%";
+
+    let totalSent = 0;
+    const batchSize = 100;
+
+    try {
+      if (window.Toast) window.Toast.info("Iniciando envío La Granjaus Paid por CSV...");
+      
+      for (let i = 0; i < granjausPaidCsvContacts.length; i += batchSize) {
+        const batch = granjausPaidCsvContacts.slice(i, i + batchSize);
+        
+        const result = await callGranjausPaidCsvFn({
+          freeLink: theLink,
+          contacts: batch
+        });
+        
+        const sent = result.sentCount || 0;
+        totalSent += sent;
+        
+        if (refs.granjausPaidCsvSentCount) refs.granjausPaidCsvSentCount.textContent = String(totalSent);
+        if (refs.granjausPaidCsvProgressBar) {
+           const pct = Math.min(100, (totalSent / granjausPaidCsvContacts.length) * 100);
+           refs.granjausPaidCsvProgressBar.style.width = `${pct}%`;
+        }
+        
+        if (i + batchSize < granjausPaidCsvContacts.length) {
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+      
+      if (window.Toast) window.Toast.success(`La Granjaus Paid CSV finalizada. Se enviaron ${totalSent} correos.`);
+    } catch (err) {
+      console.error("Granjaus Paid CSV Error:", err);
+      window.Utils.alertModal(`El envío se detuvo por un error.\nSe procesaron ${totalSent} correos.\nError: ${err.message}`, "Error en La Granjaus Paid CSV");
+    } finally {
+      if (refs.btnGranjausPaidCsv) refs.btnGranjausPaidCsv.disabled = false;
+    }
+  }
+
+  async function executeGranjausPaidTestCampaign() {
+    const theLink = refs.granjausPaidLink?.value.trim();
+    const testEmail = refs.granjausPaidTestEmail?.value.trim();
+
+    if (!theLink) {
+      if (window.Toast) window.Toast.warning("Falta el link de anticipadas");
+      return;
+    }
+    if (!testEmail) {
+      if (window.Toast) window.Toast.warning("Falta el email de prueba");
+      return;
+    }
+
+    try {
+      if (window.Toast) window.Toast.info("Enviando prueba La Granjaus Paid...");
+      await callGranjausPaidCsvFn({
+        isTest: true,
+        testEmail: testEmail,
+        freeLink: theLink
+      });
+      if (window.Toast) window.Toast.success("Email de prueba enviado exitosamente.");
+    } catch (err) {
+      console.error("Granjaus Paid Test Error:", err);
+      if (window.Toast) window.Toast.error("Error: " + err.message);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // 8.5 CSV Bulk Campaign (FREE & VIP)
   // ─────────────────────────────────────────────────────────────────────────
   let csvContacts = [];
@@ -1359,6 +1554,8 @@
   refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
   refs.btnGranjausCampaign?.addEventListener("click", executeGranjausCampaign);
   refs.btnGranjausTest?.addEventListener("click", executeGranjausTestCampaign);
+  refs.btnGranjausPaidCsv?.addEventListener("click", executeGranjausPaidCsvCampaign);
+  refs.btnGranjausPaidTest?.addEventListener("click", executeGranjausPaidTestCampaign);
   if (refs.btnCsvCampaign) {
     refs.btnCsvCampaign.addEventListener("click", () => executeCsvCampaign('free'));
   }

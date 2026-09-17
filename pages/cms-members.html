@@ -287,6 +287,50 @@
                 </div>
               </div>
               
+              <!-- LA GRANJAUS PAID CSV -->
+              <div class="summary-metric-card" style="max-width: 1000px; padding: 32px; margin-top: 16px;">
+                <div style="margin-bottom: 24px;">
+                  <h3 class="dashboard-title" style="font-size: 24px; margin: 0; color: #D4908F;">LA GRANJAUS PAID</h3>
+                </div>
+                
+                <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; position: relative;">
+                    <label class="summary-metric-label">LINK ANTICIPADAS</label>
+                    <input type="url" id="granjausPaidLink" class="input" placeholder="https://passline.com/..." style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                  </div>
+
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">ARCHIVO CSV</label>
+                    <div id="granjaus-paid-csv-dropzone" style="border: 1px dashed var(--neutral-600); height: 40px; line-height: 38px; text-align: center; cursor: pointer; color: var(--neutral-400); font-family: var(--font-mono); font-size: 12px; transition: all 0.2s;">
+                       ARRASTRAR O HACER CLIC AQUÍ
+                    </div>
+                    <input type="file" id="granjaus-paid-csv-file-input" accept=".csv" class="hidden" style="display: none;">
+                    <div id="granjaus-paid-csv-file-name" style="height: 40px; line-height: 38px; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); border: 1px solid var(--neutral-600); display: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 8px;"></div>
+                  </div>
+
+                  <button id="btnGranjausPaidCsv" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR CSV</button>
+                </div>
+
+                <!-- Test Email -->
+                <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">EMAIL DE PRUEBA</label>
+                    <input type="email" id="granjausPaidTestEmail" class="input" placeholder="tu@email.com" style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                  </div>
+                  <button id="btnGranjausPaidTest" class="btn-secondary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 24px; white-space: nowrap;">ENVIAR TEST</button>
+                </div>
+
+                <div id="granjaus-paid-csv-progress-container" style="display: none; border-top: 1px solid var(--neutral-800); padding-top: 24px; background: transparent;">
+                  <div class="row-flex justify-between align-center" style="margin-bottom: 16px;">
+                     <label class="summary-metric-label" style="margin: 0;">PROGRESO DEL CSV</label>
+                     <label class="summary-metric-label" style="margin: 0; color: var(--text-primary); font-size: 14px;"><span id="granjaus-paid-csv-sent-count">0</span> / <span id="granjaus-paid-csv-total-count">0</span> PROCESADOS</label>
+                  </div>
+                  <div style="height: 2px; background: var(--neutral-800); overflow: hidden;">
+                     <div id="granjaus-paid-csv-progress-bar" style="height: 100%; width: 0%; background: #D4908F; transition: width 0.2s linear;"></div>
+                  </div>
+                </div>
+              </div>
+              
               <!-- FREE BATCH CSV -->
               <div class="summary-metric-card" style="max-width: 1000px; padding: 32px; margin-top: 16px;">
                 <div style="margin-bottom: 24px;">

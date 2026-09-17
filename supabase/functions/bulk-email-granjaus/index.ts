@@ -39,53 +39,73 @@ function generateEmailHtml(nombre: string, freeLink: string, priorityLink: strin
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="color-scheme" content="dark">
-  <meta name="supported-color-schemes" content="dark">
+  <meta name="color-scheme" content="dark only">
+  <meta name="supported-color-schemes" content="dark only">
   <title>La Granjaus - Midnight Club</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    :root { color-scheme: dark; }
+    :root { color-scheme: dark only; }
+    @media (prefers-color-scheme: dark) {
+      .granjaus-title { color: #E5E5E5 !important; }
+      .granjaus-subtitle { color: #D4908F !important; }
+      .granjaus-body { color: #E8D0D0 !important; }
+      .granjaus-desc { color: #AD7A7A !important; }
+      .granjaus-footer { color: #D4908F !important; }
+      .granjaus-cta-outline { color: #E5E5E5 !important; border-color: #8B4545 !important; }
+      .granjaus-cta-solid { background-color: #E5E5E5 !important; color: #1A0A0A !important; }
+      .granjaus-card { background-color: #1A0A0A !important; }
+      .granjaus-bg { background-color: #120606 !important; }
+    }
+    [data-ogsc] .granjaus-title { color: #E5E5E5 !important; }
+    [data-ogsc] .granjaus-subtitle { color: #D4908F !important; }
+    [data-ogsc] .granjaus-body { color: #E8D0D0 !important; }
+    [data-ogsc] .granjaus-desc { color: #AD7A7A !important; }
+    [data-ogsc] .granjaus-footer { color: #D4908F !important; }
+    [data-ogsc] .granjaus-cta-outline { color: #E5E5E5 !important; border-color: #8B4545 !important; }
+    [data-ogsc] .granjaus-cta-solid { background-color: #E5E5E5 !important; color: #1A0A0A !important; }
+    [data-ogsc] .granjaus-card { background-color: #1A0A0A !important; }
+    [data-ogsc] .granjaus-bg { background-color: #120606 !important; }
   </style>
 </head>
-<body style="margin: 0; padding: 40px 20px; background-color: #120606; background-image: linear-gradient(#120606, #120606); text-align: center;">
+<body class="granjaus-bg" style="margin: 0; padding: 40px 20px; background-color: #120606 !important; background-image: linear-gradient(#120606, #120606); text-align: center;">
   
-  <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; max-width: 500px; margin: 0 auto; background-color: #1A0A0A; background-image: linear-gradient(#1A0A0A, #1A0A0A); color: #E5E5E5; padding: 0; border: 1px solid #4A1C1C; border-radius: 8px; overflow: hidden; letter-spacing: -0.01em; text-align: center;">
+  <div class="granjaus-card" style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; max-width: 500px; margin: 0 auto; background-color: #1A0A0A !important; background-image: linear-gradient(#1A0A0A, #1A0A0A); color: #E5E5E5 !important; padding: 0; border: 1px solid #4A1C1C; border-radius: 8px; overflow: hidden; letter-spacing: -0.01em; text-align: center;">
     
     <!-- Header -->
     <div style="padding: 48px 20px 40px; border-bottom: 1px solid #4A1C1C;">
-      <h1 style="color: #E5E5E5; font-size: 28px; margin: 0; letter-spacing: 6px; text-transform: uppercase; font-weight: 700;">LA GRANJAUS</h1>
-      <p style="color: #D4908F; margin: 12px 0 0; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; font-weight: 500;">INVITACIÓN EXCLUSIVA ${firstName.toUpperCase()}</p>
+      <h1 class="granjaus-title" style="color: #E5E5E5 !important; font-size: 28px; margin: 0; letter-spacing: 6px; text-transform: uppercase; font-weight: 700;">LA GRANJAUS</h1>
+      <p class="granjaus-subtitle" style="color: #D4908F !important; margin: 12px 0 0; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; font-weight: 500;">INVITACIÓN EXCLUSIVA ${firstName.toUpperCase()}</p>
     </div>
     
     <!-- Body -->
     <div style="padding: 40px 30px 48px;">
       
-      <p style="color: #E8D0D0; font-size: 14px; line-height: 1.8; margin: 0 auto 40px; max-width: 380px; font-weight: 400;">
+      <p class="granjaus-body" style="color: #E8D0D0 !important; font-size: 14px; line-height: 1.8; margin: 0 auto 40px; max-width: 380px; font-weight: 400;">
         ¿TE GUSTA LA MÚSICA ELECTRÓNICA? TE INVITAMOS ESTE VIERNES A LA PRIMERA FECHA DE LA GRANJAUS AL AIRE LIBRE EN MIDNIGHT
       </p>
       
       <div style="margin-bottom: 16px;">
-        <a href="${freeLink}" style="display: block; background-color: transparent; border: 1px solid #8B4545; color: #E5E5E5; text-decoration: none; padding: 18px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; transition: opacity 0.2s;">
+        <a class="granjaus-cta-outline" href="${freeLink}" style="display: block; background-color: transparent; border: 1px solid #8B4545; color: #E5E5E5 !important; text-decoration: none; padding: 18px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; transition: opacity 0.2s;">
           OBTENER INVITACIÓN
         </a>
       </div>
-      <p style="color: #AD7A7A; font-size: 10px; margin: 0 auto 32px; line-height: 1.5; font-weight: 400; max-width: 300px; text-transform: uppercase; letter-spacing: 1px;">
+      <p class="granjaus-desc" style="color: #AD7A7A !important; font-size: 10px; margin: 0 auto 32px; line-height: 1.5; font-weight: 400; max-width: 300px; text-transform: uppercase; letter-spacing: 1px;">
         VÁLIDO HASTA LAS 2:00. SUJETO A CAPACIDAD.
       </p>
 
       <div style="margin-bottom: 16px;">
-        <a href="${priorityLink}" style="display: block; background-color: #E5E5E5; background-image: linear-gradient(#E5E5E5, #E5E5E5); color: #1A0A0A; text-decoration: none; padding: 18px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; transition: opacity 0.2s;">
+        <a class="granjaus-cta-solid" href="${priorityLink}" style="display: block; background-color: #E5E5E5 !important; background-image: linear-gradient(#E5E5E5, #E5E5E5); color: #1A0A0A !important; text-decoration: none; padding: 18px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; transition: opacity 0.2s;">
           COMPRAR ACCESO ($10.000)
         </a>
       </div>
-      <p style="color: #AD7A7A; font-size: 10px; margin: 0 auto 32px; line-height: 1.5; font-weight: 400; max-width: 300px; text-transform: uppercase; letter-spacing: 1px;">
+      <p class="granjaus-desc" style="color: #AD7A7A !important; font-size: 10px; margin: 0 auto 32px; line-height: 1.5; font-weight: 400; max-width: 300px; text-transform: uppercase; letter-spacing: 1px;">
         RESERVA TU LUGAR. VÁLIDO HASTA LAS 3:00
       </p>
 
       <hr style="border: 0; border-top: 1px solid #4A1C1C; margin: 0 0 32px;" />
       
       <!-- Footer -->
-      <p style="color: #D4908F; font-size: 10px; margin: 0; letter-spacing: 2px; text-transform: uppercase; font-weight: 700;">
+      <p class="granjaus-footer" style="color: #D4908F !important; font-size: 10px; margin: 0; letter-spacing: 2px; text-transform: uppercase; font-weight: 700;">
         MIDNIGHT CLUB EXPERIENCE
       </p>
     </div>
