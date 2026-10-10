@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-10-10
+
+- **feat:** Add Test Email feature ("ENVIAR TEST") to both "ACTIVE MEMBERS" and "FREE BATCH CSV" campaign panels in CMS to allow live email verification before mass dispatch
+- **fix:** Polish Campañas layout in CMS (`pages/cms-members.html`), transitioning helper links to natural document flow and introducing a subtle divider to prevent overlapping with "EMAIL DE PRUEBA"
+- **fix:** Resolve Dark Mode color inversion and white-on-white button defect in iOS Gmail and mobile clients by implementing `<meta name="color-scheme" content="light only">` and `:root { color-scheme: light only; }`
+- **refactor:** Fortify email templates with multi-layered anti-inversion styling (`-webkit-text-fill-color`, protected `<span>` elements, and alpha-based border styling) across `bulk-email-active` and `bulk-email-csv` Edge Functions
+- **refactor:** Remove `NOMBRE` variable from email templates to streamline invitation copy to clean "INVITACIÓN EXCLUSIVA" across both campaigns without runtime regressions
+- **chore:** Remove inert Tailwind CSS CDN `<script>` tags from email templates to optimize deliverability and avoid spam filter penalties
+- **chore:** Clean repository of temporary files and update `.gitignore` rules
+
 ## [1.2.0] - 2026-07-25
 - **feat:** Implement inline form editing in `Site config` tab for rapid modification of names, descriptions, and URLs with optimistic UI updates
 - **feat:** Add `Site config` tab to CMS with Swiss Brutalism UI for managing global system variables

@@ -24,7 +24,7 @@ interface BulkEmailCsvRequest {
   isTest?: boolean;
   testEmail?: string;
   freeLink: string;
-  contacts: { nombre: string; email: string }[];
+  contacts: { nombre?: string; email: string }[];
 }
 
 // Generador del HTML de la plantilla
