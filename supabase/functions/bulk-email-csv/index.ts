@@ -24,12 +24,11 @@ interface BulkEmailCsvRequest {
   isTest?: boolean;
   testEmail?: string;
   freeLink: string;
-  campaignType?: 'free' | 'vip';
   contacts: { nombre: string; email: string }[];
 }
 
 // Generador del HTML de la plantilla
-function generateEmailHtml(nombre: string, freeLink: string, campaignType: 'free' | 'vip' = 'free'): string {
+function generateEmailHtml(nombre: string, freeLink: string): string {
   // Aseguramos capturar única y exclusivamente el PRIMER NOMBRE, y que esté en Title Case
   let firstName = "Miembro";
   if (nombre && typeof nombre === 'string') {
@@ -41,68 +40,276 @@ function generateEmailHtml(nombre: string, freeLink: string, campaignType: 'free
     }
   }
 
-  const isVip = campaignType === 'vip';
-  const descriptionText = isVip 
-    ? "Recibiste una invitacion VIP para este Sabado" 
-    : "¡Felicidades! Recibiste una invitación MEMBER FREE PASS para este sábado. ¡Te esperamos!";
-  const ctaText = isVip 
-    ? "OBTENE TU ACCESO VIP" 
-    : "OBTENER MEMBER FREE PASS";
-  const footerText = isVip 
-    ? "SECTOR EXCLUSIVO PARA MEMBERS VIP<br>ACCESO RAPIDO GREENLINE<br>VÁLIDO HASTA LAS 03:00." 
-    : "VÁLIDO HASTA LAS 2:00. SUJETO A CAPACIDAD.";
+  const descriptionText = "¡Felicidades! Recibiste una invitación MEMBER FREE PASS para este sábado. ¡Te esperamos!";
+  const ctaText = "OBTENER MEMBER FREE PASS";
+  const footerText = "VÁLIDO HASTA LAS 2:00. SUJETO A CAPACIDAD.";
   
   return `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="UTF-8">
-  <meta name="color-scheme" content="dark">
-  <meta name="supported-color-schemes" content="dark">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <!-- Universal Forced Dark Mode Directives -->
+  <meta name="color-scheme" content="only dark">
+  <meta name="supported-color-schemes" content="only dark">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <title>Member Pass - Midnight Club</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root { color-scheme: dark; }
+
+  <!-- Outlook DPI Fixes -->
+  <!--[if mso]>
+  <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+  </xml>
+  <![endif]-->
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN for modern browser & preview rendering -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              bg: '#050505',
+              card: '#0B0B0E',
+              surface: '#111116',
+              border: '#1E1E24',
+              mint: '#34D399',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Email Client Specific Fallbacks & Dark Mode Locks -->
+  <style type="text/css">
+    :root {
+      color-scheme: only dark;
+      supported-color-schemes: only dark;
+    }
+
+    /* Client Resets */
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      min-height: 100% !important;
+      background-color: #050505 !important;
+      -webkit-text-size-adjust: 100% !important;
+      -ms-text-size-adjust: 100% !important;
+    }
+
+    body, table, td, p, a, span, h1, h2 {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* Outlook.com Dark Mode Overrides */
+    [data-ogsc] body, [data-ogsb] body,
+    [data-ogsc] .dark-bg, [data-ogsb] .dark-bg {
+      background-color: #050505 !important;
+    }
+    [data-ogsc] .dark-card, [data-ogsb] .dark-card {
+      background-color: #0B0B0E !important;
+    }
+    [data-ogsc] .dark-text-white, [data-ogsb] .dark-text-white {
+      color: #FFFFFF !important;
+    }
+    [data-ogsc] .dark-text-muted, [data-ogsb] .dark-text-muted {
+      color: #9CA3AF !important;
+    }
+
+    /* Gmail Mobile/Web Anti-Inversion Rules */
+    u + .body .dark-bg {
+      background-color: #050505 !important;
+    }
+    u + .body .dark-card {
+      background-color: #0B0B0E !important;
+    }
+
+    /* Prevent Apple Mail & iOS from altering link styling */
+    a[x-apple-data-detectors] {
+      color: inherit !important;
+      text-decoration: none !important;
+      font-size: inherit !important;
+      font-family: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+    }
+
+    /* Interactive hover states */
+    .hover-card:hover {
+      border-color: #52525B !important;
+    }
+    .btn-primary:hover {
+      background-color: #F4F4F5 !important;
+      opacity: 0.95 !important;
+    }
   </style>
 </head>
-<body style="margin: 0; padding: 40px 20px; background-color: #050505; background-image: linear-gradient(#050505, #050505); text-align: center;">
-  
-  <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; max-width: 500px; margin: 0 auto; background-color: #0A0A0A; background-image: linear-gradient(#0A0A0A, #0A0A0A); color: #E5E5E5; padding: 0; border: 1px solid #1A1A1A; border-radius: 8px; overflow: hidden; letter-spacing: -0.01em; text-align: center;">
-    
-    <!-- Header -->
-    <div style="padding: 48px 20px 40px; border-bottom: 1px solid #1A1A1A;">
-      <h1 style="color: #E5E5E5; font-size: 28px; margin: 0; letter-spacing: 6px; text-transform: uppercase; font-weight: 700;">MIDNIGHT CLUB</h1>
-      <p style="color: #737373; margin: 12px 0 0; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; font-weight: 500;">INVITACIÓN EXCLUSIVA ${firstName.toUpperCase()}</p>
-    </div>
-    
-    <!-- Body -->
-    <div style="padding: 40px 30px 48px;">
-      
-      <p style="color: #A3A3A3; font-size: 14px; line-height: 1.8; margin: 0 auto 40px; max-width: 380px; font-weight: 400;">
-        ${descriptionText}
-      </p>
-      
-      <div style="margin-bottom: 16px;">
-        <a href="${freeLink}" style="display: block; background-color: #E5E5E5; background-image: linear-gradient(#E5E5E5, #E5E5E5); color: #0A0A0A; text-decoration: none; padding: 18px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; transition: opacity 0.2s;">
-          ${ctaText}
-        </a>
-      </div>
-      <p style="color: #52525B; font-size: 10px; margin: 0 auto 32px; line-height: 1.5; font-weight: 400; max-width: 300px; text-transform: uppercase; letter-spacing: 1px;">
-        ${footerText}
-      </p>
 
-      <hr style="border: 0; border-top: 1px solid #1A1A1A; margin: 0 0 32px;" />
-      
-      <!-- Footer Notes -->
-      <p style="color: #737373; font-size: 10px; margin: 0; letter-spacing: 2px; text-transform: uppercase; font-weight: 700;">
-        MIDNIGHT CLUB EXPERIENCE
-      </p>
-    </div>
-  </div>
+<body class="body dark-bg bg-[#050505] text-zinc-200 min-h-screen py-6 sm:py-12 px-3 sm:px-4 flex items-center justify-center antialiased selection:bg-zinc-800 selection:text-white"
+      bgcolor="#050505" 
+      style="margin: 0; padding: 40px 12px; width: 100%; min-height: 100%; background-color: #050505; background-image: linear-gradient(#050505, #050505); color: #E5E7EB; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-align: center;">
+
+  <!-- Outer Centering Table for Full Email Client Compatibility -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#050505" style="width: 100%; margin: 0; padding: 0; background-color: #050505; background-image: linear-gradient(#050505, #050505);">
+    <tr>
+      <td align="center" valign="top" style="padding: 0;">
+
+        <!--[if (gte mso 9)|(IE)]>
+        <table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+        <td align="center" valign="top">
+        <![endif]-->
+
+        <!-- Main Card Container (max-width: 600px) -->
+        <table role="presentation" 
+               class="dark-card w-full max-w-[600px] mx-auto bg-[#0B0B0E] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xl shadow-black/80" 
+               width="100%" 
+               cellpadding="0" 
+               cellspacing="0" 
+               border="0" 
+               bgcolor="#0B0B0E" 
+               style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #0B0B0E; background-image: linear-gradient(#0B0B0E, #0B0B0E); border: 1px solid #1E1E24; border-radius: 16px; overflow: hidden; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);">
+
+          <!-- ================= HEADER SECTION ================= -->
+          <tr>
+            <td align="center" 
+                class="px-6 sm:px-10 pt-10 sm:pt-12 pb-8 border-b border-zinc-850/80 text-center bg-gradient-to-b from-[#13131A] to-[#0B0B0E]" 
+                style="padding: 44px 28px 32px; border-bottom: 1px solid #1A1A22; background-color: #111116; background-image: linear-gradient(#13131A, #0B0B0E);">
+              
+              <!-- Brand Logo / Wordmark -->
+              <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-[0.28em] text-white select-none" 
+                  style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 6px; text-transform: uppercase; color: #FFFFFF; line-height: 1.2;">
+                MIDNIGHT CLUB
+              </h1>
+
+              <!-- Dynamic Exclusive Member Badge -->
+              <!-- Variable: ${firstName.toUpperCase()} -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 16px auto 0;">
+                <tr>
+                  <td class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-750 bg-zinc-900/90 shadow-sm" 
+                      style="padding: 6px 16px; background-color: #141419; background-image: linear-gradient(#141419, #141419); border: 1px solid #272732; border-radius: 9999px;">
+                    <span class="text-[10px] font-medium tracking-widest text-zinc-400 uppercase" 
+                          style="font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF; display: inline-block;">
+                      INVITACIÓN EXCLUSIVA
+                    </span>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- ================= BODY CONTENT ================= -->
+          <tr>
+            <td align="center" 
+                class="px-5 sm:px-10 py-8 sm:py-10 space-y-6 sm:space-y-7" 
+                style="padding: 36px 28px 44px;">
+
+              <!-- Lead Greeting Text -->
+              <!-- Variable: ${descriptionText} -->
+              <p class="text-center text-sm sm:text-[15px] leading-relaxed text-zinc-300 max-w-md mx-auto font-normal" 
+                 style="margin: 0 auto 32px; max-width: 440px; font-size: 14px; line-height: 1.7; color: #D1D5DB; font-weight: 400; text-align: center;">
+                ¡Felicidades! Recibiste una invitación para este sábado. ¡Te esperamos!
+              </p>
+
+              <!-- ================= HERO PASS BLOCK: FREE PASS ================= -->
+              <table role="presentation" 
+                     class="hover-card relative w-full bg-gradient-to-b from-zinc-900/95 to-zinc-900/60 border border-zinc-700/80 rounded-xl text-center transition-all duration-300 shadow-lg shadow-black/50" 
+                     width="100%" 
+                     cellpadding="0" 
+                     cellspacing="0" 
+                     border="0" 
+                     bgcolor="#14141A" 
+                     style="width: 100%; margin: 0 0 32px; background-color: #14141A; background-image: linear-gradient(#16161D, #111116); border: 1px solid #2E2E38; border-top: 2px solid #34D399; border-radius: 12px; overflow: hidden; text-align: center;">
+                <tr>
+                  <td style="padding: 26px 22px 24px;">
+                    
+                    <!-- Tier Header Label -->
+                    <div style="margin: 0 0 16px; text-align: center;">
+                      <span class="text-[11px] font-bold uppercase tracking-widest text-emerald-400" 
+                            style="font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #34D399; display: inline-block;">
+                        ACCESO HABILITADO
+                      </span>
+                    </div>
+
+                    <!-- Primary CTA Button (Solid High-Contrast White) -->
+                    <!-- Variables: ${freeLink} & ${ctaText} -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 4px 0 16px;">
+                      <tr>
+                        <td align="center">
+                          <a href="${freeLink}" 
+                             class="btn-primary block w-full py-4 px-6 bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-xs uppercase tracking-widest rounded-lg transition-all duration-200 shadow-md text-center" 
+                             style="display: block; width: 100%; box-sizing: border-box; background-color: #FFFFFF; background-image: linear-gradient(#FFFFFF, #FFFFFF); color: #0A0A0D; text-decoration: none; padding: 16px 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; text-align: center; border: 1px solid #FFFFFF;">
+                            OBTENER FREE PASS
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Secondary Conditions -->
+                    <!-- Variable: ${footerText} -->
+                    <p class="text-xs tracking-wider text-zinc-300 leading-relaxed font-normal" 
+                       style="margin: 0; font-size: 11px; line-height: 1.6; color: #D1D5DB; font-weight: 400; letter-spacing: 1px;">
+                      VÁLIDO HASTA LAS 2:00 &bull; SUJETO A CAPACIDAD
+                    </p>
+
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Minimal Hairline Divider -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px;">
+                <tr>
+                  <td style="border-top: 1px solid #1C1C22; font-size: 0; line-height: 0;">&nbsp;</td>
+                </tr>
+              </table>
+
+              <!-- ================= FOOTER SECTION ================= -->
+              <p class="text-[11px] font-bold uppercase tracking-widest text-zinc-400" 
+                 style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF; text-align: center;">
+                MIDNIGHT CLUB EXPERIENCE
+              </p>
+              <p class="text-[9px] uppercase tracking-wider text-zinc-500" 
+                 style="margin: 0; font-size: 9px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: #52525B; text-align: center;">
+                ACCESO EXCLUSIVO CON DNI &bull; DERECHO DE ADMISIÓN RESERVADO
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+        <!-- End Main Card Container -->
+
+        <!--[if (gte mso 9)|(IE)]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
+
+      </td>
+    </tr>
+  </table>
 
 </body>
 </html>
-  `;
+`;
 }
 
 serve(async (req) => {
@@ -126,7 +333,7 @@ serve(async (req) => {
     }
 
     const body: BulkEmailCsvRequest = await req.json();
-    const { isTest, testEmail, freeLink, campaignType = 'free', contacts } = body;
+    const { isTest, testEmail, freeLink, contacts } = body;
 
     if (!freeLink) {
       return jsonResponse({ error: "Falta el link de la campaña" }, 400);
@@ -137,7 +344,7 @@ serve(async (req) => {
         return jsonResponse({ error: "Email de prueba requerido" }, 400);
       }
 
-      const html = generateEmailHtml("Test", freeLink, campaignType);
+      const html = generateEmailHtml("Test", freeLink);
 
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -181,7 +388,7 @@ serve(async (req) => {
             from: "Midnight Club <noreply@midnightclub.com.ar>",
             to: validEmail,
             subject: "Invitación Exclusiva - Midnight Club",
-            html: generateEmailHtml(c.nombre || "Miembro", freeLink, campaignType)
+            html: generateEmailHtml(c.nombre || "Miembro", freeLink)
         };
     }).filter(e => e !== null);
 

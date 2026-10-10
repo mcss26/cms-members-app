@@ -90,40 +90,6 @@
     csvSentCount: document.getElementById("csv-sent-count"),
     csvTotalCount: document.getElementById("csv-total-count"),
     csvProgressBar: document.getElementById("csv-progress-bar"),
-    
-    // VIP CSV Refs
-    csvVipLink: document.getElementById("csvVipLink"),
-    btnCsvVipCampaign: document.getElementById("btnCsvVipCampaign"),
-    csvVipDropzone: document.getElementById("csv-vip-dropzone"),
-    csvVipFileInput: document.getElementById("csv-vip-file-input"),
-    csvVipFileName: document.getElementById("csv-vip-file-name"),
-    csvVipProgressContainer: document.getElementById("csv-vip-progress-container"),
-    csvVipSentCount: document.getElementById("csv-vip-sent-count"),
-    csvVipTotalCount: document.getElementById("csv-vip-total-count"),
-    csvVipProgressBar: document.getElementById("csv-vip-progress-bar"),
-    
-    // La Granjaus Campaign
-    granjausFreeLink: document.getElementById("granjausFreeLink"),
-    granjausPriorityLink: document.getElementById("granjausPriorityLink"),
-    btnGranjausCampaign: document.getElementById("btnGranjausCampaign"),
-    granjausTestEmail: document.getElementById("granjausTestEmail"),
-    btnGranjausTest: document.getElementById("btnGranjausTest"),
-    granjausProgressContainer: document.getElementById("granjaus-progress-container"),
-    granjausSentCount: document.getElementById("granjaus-sent-count"),
-    granjausProgressBar: document.getElementById("granjaus-progress-bar"),
-    
-    // La Granjaus Paid CSV
-    granjausPaidLink: document.getElementById("granjausPaidLink"),
-    btnGranjausPaidCsv: document.getElementById("btnGranjausPaidCsv"),
-    granjausPaidTestEmail: document.getElementById("granjausPaidTestEmail"),
-    btnGranjausPaidTest: document.getElementById("btnGranjausPaidTest"),
-    granjausPaidCsvDropzone: document.getElementById("granjaus-paid-csv-dropzone"),
-    granjausPaidCsvFileInput: document.getElementById("granjaus-paid-csv-file-input"),
-    granjausPaidCsvFileName: document.getElementById("granjaus-paid-csv-file-name"),
-    granjausPaidCsvProgressContainer: document.getElementById("granjaus-paid-csv-progress-container"),
-    granjausPaidCsvSentCount: document.getElementById("granjaus-paid-csv-sent-count"),
-    granjausPaidCsvTotalCount: document.getElementById("granjaus-paid-csv-total-count"),
-    granjausPaidCsvProgressBar: document.getElementById("granjaus-paid-csv-progress-bar"),
   };
 
   const ui = { 
@@ -909,307 +875,7 @@
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // LA GRANJAUS CAMPAIGN
-  // ─────────────────────────────────────────────────────────────────────────
-  async function callGranjausEmailFn(payload) {
-    const authFnUrl = `${window.APP_CONFIG.SUPABASE_URL}/functions/v1/bulk-email-granjaus`;
-    const resp = await fetch(authFnUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": window.APP_CONFIG.SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${window.APP_CONFIG.SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify(payload)
-    });
-    const result = await resp.json();
-    if (!resp.ok || !result.success) {
-      const details = result.details ? ` (${result.details})` : "";
-      throw new Error((result.error || "Error en el envío") + details);
-    }
-    return result;
-  }
 
-  async function executeGranjausCampaign() {
-    const freeLink = refs.granjausFreeLink?.value.trim();
-    const priorityLink = refs.granjausPriorityLink?.value.trim();
-
-    if (!freeLink || !priorityLink) {
-      if (window.Toast) window.Toast.warning("Faltan los links de la campaña La Granjaus");
-      return;
-    }
-
-    const totalActiveStr = refs.countActivo?.textContent || "0";
-    const totalActive = parseInt(totalActiveStr.replace(/\D/g, ''), 10);
-    
-    if (totalActive === 0) {
-      if (window.Toast) window.Toast.warning("No hay miembros activos para enviar.");
-      return;
-    }
-
-    const confirmMsg = `¿Estás seguro de enviar LA GRANJAUS a TODOS los miembros activos (aprox ${totalActive})?`;
-    const confirmed = await window.Utils.confirmModal(confirmMsg);
-    if (!confirmed) return;
-
-    if (refs.granjausProgressContainer) refs.granjausProgressContainer.style.display = "block";
-    if (refs.btnGranjausCampaign) refs.btnGranjausCampaign.disabled = true;
-    if (refs.granjausSentCount) refs.granjausSentCount.textContent = "0";
-    if (refs.granjausProgressBar) refs.granjausProgressBar.style.width = "0%";
-
-    let hasMore = true;
-    let lastId = '00000000-0000-0000-0000-000000000000';
-    let totalSent = 0;
-
-    try {
-      if (window.Toast) window.Toast.info("Iniciando envío La Granjaus...");
-      
-      while (hasMore) {
-        const result = await callGranjausEmailFn({
-          isTest: false,
-          freeLink: freeLink,
-          priorityLink: priorityLink,
-          last_id: lastId
-        });
-        
-        const sent = result.sentCount || 0;
-        const processed = result.processedCount || sent;
-        totalSent += sent;
-        
-        if (refs.granjausSentCount) refs.granjausSentCount.textContent = String(totalSent);
-        if (refs.granjausProgressBar) {
-           const pct = totalActive > 0 ? Math.min(100, (totalSent / totalActive) * 100) : 100;
-           refs.granjausProgressBar.style.width = `${pct}%`;
-        }
-
-        if (processed < 100 || !result.next_last_id) {
-          hasMore = false;
-        } else {
-          lastId = result.next_last_id;
-          // Pause 2 seconds to respect Resend Rate Limits
-          await new Promise(r => setTimeout(r, 2000));
-        }
-      }
-      
-      if (window.Toast) window.Toast.success(`La Granjaus finalizada. Se enviaron ${totalSent} correos.`);
-    } catch (err) {
-      console.error("Granjaus Campaign Error:", err);
-      window.Utils.alertModal(`El envío se detuvo por un error.\nSe enviaron ${totalSent} correos.\nError: ${err.message}`, "Error en La Granjaus");
-    } finally {
-      if (refs.btnGranjausCampaign) refs.btnGranjausCampaign.disabled = false;
-    }
-  }
-
-  async function executeGranjausTestCampaign() {
-    const freeLink = refs.granjausFreeLink?.value.trim();
-    const priorityLink = refs.granjausPriorityLink?.value.trim();
-    const testEmail = refs.granjausTestEmail?.value.trim();
-
-    if (!freeLink || !priorityLink) {
-      if (window.Toast) window.Toast.warning("Faltan los links de la campaña");
-      return;
-    }
-    if (!testEmail) {
-      if (window.Toast) window.Toast.warning("Falta el email de prueba");
-      return;
-    }
-
-    try {
-      if (window.Toast) window.Toast.info("Enviando prueba La Granjaus...");
-      await callGranjausEmailFn({
-        isTest: true,
-        testEmail: testEmail,
-        freeLink: freeLink,
-        priorityLink: priorityLink
-      });
-      if (window.Toast) window.Toast.success("Email de prueba enviado exitosamente.");
-    } catch (err) {
-      console.error("Granjaus Test Error:", err);
-      if (window.Toast) window.Toast.error("Error: " + err.message);
-    }
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // LA GRANJAUS PAID CSV CAMPAIGN
-  // ─────────────────────────────────────────────────────────────────────────
-  let granjausPaidCsvContacts = [];
-
-  function handleGranjausPaidCsvFile(file) {
-    if (!file || !file.name.toLowerCase().endsWith('.csv')) {
-      if (window.Toast) window.Toast.error("Por favor, sube un archivo CSV válido.");
-      return;
-    }
-    
-    if (refs.granjausPaidCsvFileName) {
-       refs.granjausPaidCsvFileName.textContent = `Archivo cargado: ${file.name}`;
-       refs.granjausPaidCsvFileName.style.display = 'block';
-       refs.granjausPaidCsvDropzone.style.display = 'none';
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target.result;
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
-      
-      granjausPaidCsvContacts = [];
-      for (let i = 1; i < lines.length; i++) {
-        const parts = lines[i].split(/[,;]/);
-        if (parts.length >= 2) {
-          const nombre = parts[0].replace(/"/g, "").trim();
-          const email = parts[1].replace(/"/g, "").trim();
-          if (nombre && email && email.includes('@')) {
-            granjausPaidCsvContacts.push({ nombre, email });
-          }
-        }
-      }
-      
-      if (refs.granjausPaidCsvTotalCount) refs.granjausPaidCsvTotalCount.textContent = granjausPaidCsvContacts.length;
-      if (refs.btnGranjausPaidCsv && granjausPaidCsvContacts.length > 0) {
-         refs.btnGranjausPaidCsv.textContent = `ENVIAR A ${granjausPaidCsvContacts.length} CONTACTOS`;
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  if (refs.granjausPaidCsvDropzone && refs.granjausPaidCsvFileInput) {
-    refs.granjausPaidCsvDropzone.addEventListener("click", () => refs.granjausPaidCsvFileInput.click());
-    
-    refs.granjausPaidCsvDropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      refs.granjausPaidCsvDropzone.style.borderColor = "var(--text-primary)";
-      refs.granjausPaidCsvDropzone.style.color = "var(--text-primary)";
-    });
-
-    refs.granjausPaidCsvDropzone.addEventListener("dragleave", () => {
-      refs.granjausPaidCsvDropzone.style.borderColor = "var(--neutral-600)";
-      refs.granjausPaidCsvDropzone.style.color = "var(--neutral-400)";
-    });
-
-    refs.granjausPaidCsvDropzone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      refs.granjausPaidCsvDropzone.style.borderColor = "var(--neutral-600)";
-      refs.granjausPaidCsvDropzone.style.color = "var(--neutral-400)";
-      
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        refs.granjausPaidCsvFileInput.files = e.dataTransfer.files;
-        handleGranjausPaidCsvFile(e.dataTransfer.files[0]);
-      }
-    });
-
-    refs.granjausPaidCsvFileInput.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files.length > 0) {
-        handleGranjausPaidCsvFile(e.target.files[0]);
-      }
-    });
-  }
-
-  async function callGranjausPaidCsvFn(payload) {
-    const { data: { session } } = await window.sb.auth.getSession();
-    if (!session) throw new Error("No hay sesión activa");
-    
-    const url = `${window.APP_CONFIG.SUPABASE_URL}/functions/v1/bulk-email-granjaus-csv`;
-    
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": window.APP_CONFIG.SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${session.access_token}`
-      },
-      body: JSON.stringify(payload)
-    });
-    
-    const result = await resp.json();
-    if (!resp.ok || !result.success) {
-      const details = result.details ? ` (${result.details})` : "";
-      throw new Error((result.error || "Error en el envío") + details);
-    }
-    return result;
-  }
-
-  async function executeGranjausPaidCsvCampaign() {
-    const theLink = refs.granjausPaidLink?.value.trim();
-    if (!theLink) {
-      if (window.Toast) window.Toast.warning("Falta el link de anticipadas");
-      return;
-    }
-    if (granjausPaidCsvContacts.length === 0) {
-      if (window.Toast) window.Toast.warning("No hay contactos válidos cargados en el CSV");
-      return;
-    }
-
-    const confirmMsg = `¿Estás seguro de enviar La Granjaus Paid a los ${granjausPaidCsvContacts.length} contactos del CSV?`;
-    const confirmed = await window.Utils.confirmModal(confirmMsg);
-    if (!confirmed) return;
-
-    if (refs.granjausPaidCsvProgressContainer) refs.granjausPaidCsvProgressContainer.style.display = "block";
-    if (refs.btnGranjausPaidCsv) refs.btnGranjausPaidCsv.disabled = true;
-    if (refs.granjausPaidCsvSentCount) refs.granjausPaidCsvSentCount.textContent = "0";
-    if (refs.granjausPaidCsvProgressBar) refs.granjausPaidCsvProgressBar.style.width = "0%";
-
-    let totalSent = 0;
-    const batchSize = 100;
-
-    try {
-      if (window.Toast) window.Toast.info("Iniciando envío La Granjaus Paid por CSV...");
-      
-      for (let i = 0; i < granjausPaidCsvContacts.length; i += batchSize) {
-        const batch = granjausPaidCsvContacts.slice(i, i + batchSize);
-        
-        const result = await callGranjausPaidCsvFn({
-          freeLink: theLink,
-          contacts: batch
-        });
-        
-        const sent = result.sentCount || 0;
-        totalSent += sent;
-        
-        if (refs.granjausPaidCsvSentCount) refs.granjausPaidCsvSentCount.textContent = String(totalSent);
-        if (refs.granjausPaidCsvProgressBar) {
-           const pct = Math.min(100, (totalSent / granjausPaidCsvContacts.length) * 100);
-           refs.granjausPaidCsvProgressBar.style.width = `${pct}%`;
-        }
-        
-        if (i + batchSize < granjausPaidCsvContacts.length) {
-          await new Promise(r => setTimeout(r, 2000));
-        }
-      }
-      
-      if (window.Toast) window.Toast.success(`La Granjaus Paid CSV finalizada. Se enviaron ${totalSent} correos.`);
-    } catch (err) {
-      console.error("Granjaus Paid CSV Error:", err);
-      window.Utils.alertModal(`El envío se detuvo por un error.\nSe procesaron ${totalSent} correos.\nError: ${err.message}`, "Error en La Granjaus Paid CSV");
-    } finally {
-      if (refs.btnGranjausPaidCsv) refs.btnGranjausPaidCsv.disabled = false;
-    }
-  }
-
-  async function executeGranjausPaidTestCampaign() {
-    const theLink = refs.granjausPaidLink?.value.trim();
-    const testEmail = refs.granjausPaidTestEmail?.value.trim();
-
-    if (!theLink) {
-      if (window.Toast) window.Toast.warning("Falta el link de anticipadas");
-      return;
-    }
-    if (!testEmail) {
-      if (window.Toast) window.Toast.warning("Falta el email de prueba");
-      return;
-    }
-
-    try {
-      if (window.Toast) window.Toast.info("Enviando prueba La Granjaus Paid...");
-      await callGranjausPaidCsvFn({
-        isTest: true,
-        testEmail: testEmail,
-        freeLink: theLink
-      });
-      if (window.Toast) window.Toast.success("Email de prueba enviado exitosamente.");
-    } catch (err) {
-      console.error("Granjaus Paid Test Error:", err);
-      if (window.Toast) window.Toast.error("Error: " + err.message);
-    }
-  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // 8.5 CSV Bulk Campaign (FREE & VIP)
@@ -1287,77 +953,6 @@
     });
   }
 
-  // Handle VIP CSV
-  function handleVipCsvFile(file) {
-    if (!file || !file.name.toLowerCase().endsWith('.csv')) {
-      if (window.Toast) window.Toast.error("Por favor, sube un archivo CSV válido.");
-      return;
-    }
-    
-    if (refs.csvVipFileName) {
-       refs.csvVipFileName.textContent = `Archivo cargado: ${file.name}`;
-       refs.csvVipFileName.style.display = 'block';
-       refs.csvVipDropzone.style.display = 'none';
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target.result;
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
-      
-      vipCsvContacts = [];
-      for (let i = 1; i < lines.length; i++) {
-        const parts = lines[i].split(/[,;]/);
-        if (parts.length >= 2) {
-          const nombre = parts[0].replace(/"/g, "").trim();
-          const email = parts[1].replace(/"/g, "").trim();
-          if (nombre && email && email.includes('@')) {
-            vipCsvContacts.push({ nombre, email });
-          }
-        }
-      }
-      
-      if (refs.csvVipTotalCount) refs.csvVipTotalCount.textContent = vipCsvContacts.length;
-      if (refs.btnCsvVipCampaign && vipCsvContacts.length > 0) {
-         refs.btnCsvVipCampaign.disabled = false;
-         refs.btnCsvVipCampaign.textContent = `ENVIAR A ${vipCsvContacts.length} CONTACTOS VIP`;
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  if (refs.csvVipDropzone && refs.csvVipFileInput) {
-    refs.csvVipDropzone.addEventListener("click", () => refs.csvVipFileInput.click());
-    
-    refs.csvVipDropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      refs.csvVipDropzone.style.borderColor = "var(--text-primary)";
-      refs.csvVipDropzone.style.color = "var(--text-primary)";
-    });
-
-    refs.csvVipDropzone.addEventListener("dragleave", () => {
-      refs.csvVipDropzone.style.borderColor = "var(--neutral-600)";
-      refs.csvVipDropzone.style.color = "var(--neutral-400)";
-    });
-
-    refs.csvVipDropzone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      refs.csvVipDropzone.style.borderColor = "var(--neutral-600)";
-      refs.csvVipDropzone.style.color = "var(--neutral-400)";
-      
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        refs.csvVipFileInput.files = e.dataTransfer.files;
-        handleVipCsvFile(e.dataTransfer.files[0]);
-      }
-    });
-
-    refs.csvVipFileInput.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files.length > 0) {
-        handleVipCsvFile(e.target.files[0]);
-      }
-    });
-  }
-
   async function callBulkCsvEmailFn(payload) {
     const { data: { session } } = await window.sb.auth.getSession();
     if (!session) throw new Error("No hay sesión activa");
@@ -1383,14 +978,13 @@
     return result;
   }
 
-  async function executeCsvCampaign(type = 'free') {
-    const isVip = type === 'vip';
-    const linkInput = isVip ? refs.csvVipLink : refs.csvFreeLink;
-    const contacts = isVip ? vipCsvContacts : csvContacts;
+  async function executeCsvCampaign() {
+    const linkInput = refs.csvFreeLink;
+    const contacts = csvContacts;
     
     const theLink = linkInput?.value.trim();
     if (!theLink) {
-      if (window.Toast) window.Toast.warning(`Falta el link de la campaña ${isVip ? 'VIP' : 'FREE'} PASS`);
+      if (window.Toast) window.Toast.warning("Falta el link de la campaña FREE PASS");
       return;
     }
     if (contacts.length === 0) {
@@ -1402,10 +996,10 @@
     const confirmed = await window.Utils.confirmModal(confirmMsg);
     if (!confirmed) return;
 
-    const btn = isVip ? refs.btnCsvVipCampaign : refs.btnCsvCampaign;
-    const progressContainer = isVip ? refs.csvVipProgressContainer : refs.csvProgressContainer;
-    const sentCountEl = isVip ? refs.csvVipSentCount : refs.csvSentCount;
-    const progressBar = isVip ? refs.csvVipProgressBar : refs.csvProgressBar;
+    const btn = refs.btnCsvCampaign;
+    const progressContainer = refs.csvProgressContainer;
+    const sentCountEl = refs.csvSentCount;
+    const progressBar = refs.csvProgressBar;
 
     if (progressContainer) progressContainer.style.display = "block";
     if (btn) btn.disabled = true;
@@ -1423,7 +1017,6 @@
         
         const result = await callBulkCsvEmailFn({
           freeLink: theLink,
-          campaignType: type,
           contacts: batch
         });
         
@@ -1552,16 +1145,8 @@
   // Bulk Email
   refs.btnBulkCampaign?.addEventListener("click", executeBulkCampaign);
   refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
-  refs.btnGranjausCampaign?.addEventListener("click", executeGranjausCampaign);
-  refs.btnGranjausTest?.addEventListener("click", executeGranjausTestCampaign);
-  refs.btnGranjausPaidCsv?.addEventListener("click", executeGranjausPaidCsvCampaign);
-  refs.btnGranjausPaidTest?.addEventListener("click", executeGranjausPaidTestCampaign);
   if (refs.btnCsvCampaign) {
-    refs.btnCsvCampaign.addEventListener("click", () => executeCsvCampaign('free'));
-  }
-  
-  if (refs.btnCsvVipCampaign) {
-    refs.btnCsvVipCampaign.addEventListener("click", () => executeCsvCampaign('vip'));
+    refs.btnCsvCampaign.addEventListener("click", () => executeCsvCampaign());
   }
 
   // CSV Export
