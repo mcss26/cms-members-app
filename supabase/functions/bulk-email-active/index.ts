@@ -40,9 +40,9 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <!-- Universal Forced Dark Mode Directives -->
-  <meta name="color-scheme" content="only dark">
-  <meta name="supported-color-schemes" content="only dark">
+  <!-- Universal Color Scheme Directives: Prevent Auto-Inversion -->
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <title>Member Pass - Midnight Club</title>
 
@@ -61,34 +61,11 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS CDN for modern browser & preview rendering -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              bg: '#050505',
-              card: '#0B0B0E',
-              surface: '#111116',
-              border: '#1E1E24',
-              mint: '#34D399',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <!-- Email Client Specific Fallbacks & Dark Mode Locks -->
   <style type="text/css">
     :root {
-      color-scheme: only dark;
-      supported-color-schemes: only dark;
+      color-scheme: light only;
+      supported-color-schemes: light only;
     }
 
     /* Client Resets */
@@ -121,12 +98,25 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
       color: #9CA3AF !important;
     }
 
-    /* Gmail Mobile/Web Anti-Inversion Rules */
+    /* Gmail App Anti-Inversion Rules */
     u + .body .dark-bg {
       background-color: #050505 !important;
     }
     u + .body .dark-card {
       background-color: #0B0B0E !important;
+    }
+    u + .body .header-title {
+      color: #FFFFFF !important;
+      -webkit-text-fill-color: #FFFFFF !important;
+    }
+    u + .body .btn-primary {
+      background-color: #FFFFFF !important;
+      color: #050505 !important;
+      -webkit-text-fill-color: #050505 !important;
+    }
+    u + .body .btn-primary span {
+      color: #050505 !important;
+      -webkit-text-fill-color: #050505 !important;
     }
 
     /* Prevent Apple Mail & iOS from altering link styling */
@@ -141,21 +131,21 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
 
     /* Interactive hover states */
     .hover-card:hover {
-      border-color: #52525B !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
     }
     .btn-primary:hover {
       background-color: #F4F4F5 !important;
       opacity: 0.95 !important;
     }
     .btn-ghost:hover {
-      border-color: #71717A !important;
+      border-color: rgba(255, 255, 255, 0.4) !important;
       background-color: rgba(255, 255, 255, 0.05) !important;
       color: #FFFFFF !important;
     }
   </style>
 </head>
 
-<body class="body dark-bg bg-[#050505] text-zinc-200 min-h-screen py-6 sm:py-12 px-3 sm:px-4 flex items-center justify-center antialiased selection:bg-zinc-800 selection:text-white"
+<body class="body dark-bg"
       bgcolor="#050505" 
       style="margin: 0; padding: 40px 12px; width: 100%; min-height: 100%; background-color: #050505; background-image: linear-gradient(#050505, #050505); color: #E5E7EB; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-align: center;">
 
@@ -172,33 +162,30 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
 
         <!-- Main Card Container (max-width: 600px) -->
         <table role="presentation" 
-               class="dark-card w-full max-w-[600px] mx-auto bg-[#0B0B0E] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xl shadow-black/80" 
+               class="dark-card" 
                width="100%" 
                cellpadding="0" 
                cellspacing="0" 
                border="0" 
                bgcolor="#0B0B0E" 
-               style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #0B0B0E; background-image: linear-gradient(#0B0B0E, #0B0B0E); border: 1px solid #1E1E24; border-radius: 16px; overflow: hidden; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);">
+               style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #0B0B0E; background-image: linear-gradient(#0B0B0E, #0B0B0E); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; overflow: hidden; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);">
 
           <!-- ================= HEADER SECTION ================= -->
           <tr>
             <td align="center" 
-                class="px-6 sm:px-10 pt-10 sm:pt-12 pb-8 border-b border-zinc-850/80 text-center bg-gradient-to-b from-[#13131A] to-[#0B0B0E]" 
-                style="padding: 44px 28px 32px; border-bottom: 1px solid #1A1A22; background-color: #111116; background-image: linear-gradient(#13131A, #0B0B0E);">
+                style="padding: 44px 28px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); background-color: #111116; background-image: linear-gradient(#13131A, #0B0B0E);">
               
               <!-- Brand Logo / Wordmark -->
-              <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-[0.28em] text-white select-none" 
-                  style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 6px; text-transform: uppercase; color: #FFFFFF; line-height: 1.2;">
-                MIDNIGHT CLUB
+              <h1 class="header-title" 
+                  style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 6px; text-transform: uppercase; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; line-height: 1.2;">
+                <span style="color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;">MIDNIGHT CLUB</span>
               </h1>
 
               <!-- Dynamic Exclusive Member Badge -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 16px auto 0;">
                 <tr>
-                  <td class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-750 bg-zinc-900/90 shadow-sm" 
-                      style="padding: 6px 16px; background-color: #141419; background-image: linear-gradient(#141419, #141419); border: 1px solid #272732; border-radius: 9999px;">
-                    <span class="text-[10px] font-medium tracking-widest text-zinc-400 uppercase" 
-                          style="font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF; display: inline-block;">
+                  <td style="padding: 6px 16px; background-color: #141419; background-image: linear-gradient(#141419, #141419); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 9999px;">
+                    <span style="font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF !important; -webkit-text-fill-color: #9CA3AF !important; display: inline-block;">
                       INVITACIÓN EXCLUSIVA
                     </span>
                   </td>
@@ -211,32 +198,29 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
           <!-- ================= BODY CONTENT ================= -->
           <tr>
             <td align="center" 
-                class="px-5 sm:px-10 py-8 sm:py-10 space-y-6 sm:space-y-7" 
                 style="padding: 36px 28px 44px;">
 
               <!-- Lead Greeting Text -->
-              <p class="text-center text-sm sm:text-[15px] leading-relaxed text-zinc-300 max-w-md mx-auto font-normal" 
-                 style="margin: 0 auto 32px; max-width: 440px; font-size: 14px; line-height: 1.7; color: #D1D5DB; font-weight: 400; text-align: center;">
-                Todavía estás a tiempo de asegurar tu acceso. Te esperamos.
+              <p style="margin: 0 auto 32px; max-width: 440px; font-size: 14px; line-height: 1.7; color: #D1D5DB !important; -webkit-text-fill-color: #D1D5DB !important; font-weight: 400; text-align: center;">
+                <span style="color: #D1D5DB !important; -webkit-text-fill-color: #D1D5DB !important;">Todavía estás a tiempo de asegurar tu acceso. Te esperamos.</span>
               </p>
 
               <!-- ================= 1. OPCIÓN PRIMARIA: ACCESO PREFERENCIAL (PRIORITY PASS) ================= -->
               <!-- Placed first for top visual prominence & conversion -->
               <table role="presentation" 
-                     class="hover-card relative w-full bg-gradient-to-b from-zinc-900/95 to-zinc-900/60 border border-zinc-700/80 rounded-xl text-center transition-all duration-300 shadow-lg shadow-black/50" 
+                     class="hover-card" 
                      width="100%" 
                      cellpadding="0" 
                      cellspacing="0" 
                      border="0" 
                      bgcolor="#14141A" 
-                     style="width: 100%; margin: 0 0 24px; background-color: #14141A; background-image: linear-gradient(#16161D, #111116); border: 1px solid #2E2E38; border-top: 2px solid #34D399; border-radius: 12px; overflow: hidden; text-align: center;">
+                     style="width: 100%; margin: 0 0 24px; background-color: #14141A; background-image: linear-gradient(#16161D, #111116); border: 1px solid rgba(255, 255, 255, 0.1); border-top: 2px solid #34D399; border-radius: 12px; overflow: hidden; text-align: center;">
                 <tr>
                   <td style="padding: 24px 22px 22px;">
                     
-                    <!-- Tier Header Label (No dot preceding text) -->
+                    <!-- Tier Header Label -->
                     <div style="margin: 0 0 14px; text-align: center;">
-                      <span class="text-[11px] font-bold uppercase tracking-widest text-emerald-400" 
-                            style="font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #34D399; display: inline-block;">
+                      <span style="font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #34D399 !important; -webkit-text-fill-color: #34D399 !important; display: inline-block;">
                         ACCESO PREFERENCIAL
                       </span>
                     </div>
@@ -247,18 +231,17 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
                       <tr>
                         <td align="center">
                           <a href="${priorityLink}" 
-                             class="btn-primary block w-full py-4 px-6 bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-xs uppercase tracking-widest rounded-lg transition-all duration-200 shadow-md text-center" 
-                             style="display: block; width: 100%; box-sizing: border-box; background-color: #FFFFFF; background-image: linear-gradient(#FFFFFF, #FFFFFF); color: #0A0A0D; text-decoration: none; padding: 16px 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; text-align: center; border: 1px solid #FFFFFF;">
-                            COMPRAR PRIORITY PASS ($8000)
+                             class="btn-primary" 
+                             style="display: block; width: 100%; box-sizing: border-box; background-color: #FFFFFF; background-image: linear-gradient(#FFFFFF, #FFFFFF); color: #050505 !important; -webkit-text-fill-color: #050505 !important; text-decoration: none; padding: 16px 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; text-align: center; border: 1px solid #FFFFFF;">
+                            <span style="color: #050505 !important; -webkit-text-fill-color: #050505 !important; font-weight: 700;">COMPRAR PRIORITY PASS ($8000)</span>
                           </a>
                         </td>
                       </tr>
                     </table>
 
-                    <!-- Secondary Conditions: Greenline color accent isolated strictly to '(Greenline)' -->
-                    <p class="text-xs tracking-wider text-zinc-300 leading-relaxed font-normal" 
-                       style="margin: 0; font-size: 11px; line-height: 1.6; color: #D1D5DB; font-weight: 400; letter-spacing: 1px;">
-                      Reserva tu lugar &bull; Válido hasta las 3:00 con Fila Rápida <span class="text-emerald-400 font-semibold" style="color: #34D399; font-weight: 600;">(Greenline)</span>
+                    <!-- Secondary Conditions -->
+                    <p style="margin: 0; font-size: 11px; line-height: 1.6; color: #D1D5DB !important; -webkit-text-fill-color: #D1D5DB !important; font-weight: 400; letter-spacing: 1px;">
+                      <span style="color: #D1D5DB !important; -webkit-text-fill-color: #D1D5DB !important;">Reserva tu lugar &bull; Válido hasta las 3:00 con Fila Rápida </span><span style="color: #34D399 !important; -webkit-text-fill-color: #34D399 !important; font-weight: 600;">(Greenline)</span>
                     </p>
 
                   </td>
@@ -268,20 +251,19 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
               <!-- ================= 2. OPCIÓN SECUNDARIA: INGRESO SIN CARGO (FREE PASS) ================= -->
               <!-- Visually subordinated to the priority option -->
               <table role="presentation" 
-                     class="hover-card relative w-full bg-zinc-950/60 border border-zinc-800/80 rounded-xl text-center transition-all duration-300" 
+                     class="hover-card" 
                      width="100%" 
                      cellpadding="0" 
                      cellspacing="0" 
                      border="0" 
                      bgcolor="#0E0E12" 
-                     style="width: 100%; margin: 0 0 32px; background-color: #0E0E12; background-image: linear-gradient(#0E0E12, #0E0E12); border: 1px solid #22222A; border-radius: 12px; overflow: hidden; text-align: center;">
+                     style="width: 100%; margin: 0 0 32px; background-color: #0E0E12; background-image: linear-gradient(#0E0E12, #0E0E12); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; text-align: center;">
                 <tr>
                   <td style="padding: 22px 22px 20px;">
                     
                     <!-- Tier Header Label -->
                     <div style="margin: 0 0 14px; text-align: center;">
-                      <span class="text-[11px] font-bold uppercase tracking-widest text-zinc-400" 
-                            style="font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF; display: inline-block;">
+                      <span style="font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF !important; -webkit-text-fill-color: #9CA3AF !important; display: inline-block;">
                         INGRESO SIN CARGO
                       </span>
                     </div>
@@ -292,18 +274,17 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
                       <tr>
                         <td align="center">
                           <a href="${freeLink}" 
-                             class="btn-ghost block w-full py-3.5 px-6 bg-transparent hover:bg-zinc-900/90 border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white font-semibold text-xs uppercase tracking-widest rounded-lg transition-all duration-200 text-center" 
-                             style="display: block; width: 100%; box-sizing: border-box; background-color: transparent; border: 1px solid #3F3F46; color: #E5E7EB; text-decoration: none; padding: 15px 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; text-align: center;">
-                            OBTENER MEMBER FREE PASS
+                             class="btn-ghost" 
+                             style="display: block; width: 100%; box-sizing: border-box; background-color: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #E5E7EB !important; -webkit-text-fill-color: #E5E7EB !important; text-decoration: none; padding: 15px 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; border-radius: 8px; text-align: center;">
+                            <span style="color: #E5E7EB !important; -webkit-text-fill-color: #E5E7EB !important; font-weight: 600;">OBTENER MEMBER FREE PASS</span>
                           </a>
                         </td>
                       </tr>
                     </table>
 
                     <!-- Secondary Conditions -->
-                    <p class="text-xs tracking-wider text-zinc-400 leading-relaxed font-normal" 
-                       style="margin: 0; font-size: 11px; line-height: 1.6; color: #9CA3AF; font-weight: 400; letter-spacing: 1px;">
-                      VÁLIDO HASTA LAS 2:00 &bull; SUJETO A CAPACIDAD
+                    <p style="margin: 0; font-size: 11px; line-height: 1.6; color: #9CA3AF !important; -webkit-text-fill-color: #9CA3AF !important; font-weight: 400; letter-spacing: 1px;">
+                      <span style="color: #9CA3AF !important; -webkit-text-fill-color: #9CA3AF !important;">VÁLIDO HASTA LAS 2:00 &bull; SUJETO A CAPACIDAD</span>
                     </p>
 
                   </td>
@@ -313,18 +294,16 @@ function generateEmailHtml(freeLink: string, priorityLink: string): string {
               <!-- Minimal Hairline Divider -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px;">
                 <tr>
-                  <td style="border-top: 1px solid #1C1C22; font-size: 0; line-height: 0;">&nbsp;</td>
+                  <td style="border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 0; line-height: 0;">&nbsp;</td>
                 </tr>
               </table>
 
               <!-- ================= FOOTER SECTION ================= -->
-              <p class="text-[11px] font-bold uppercase tracking-widest text-zinc-400" 
-                 style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF; text-align: center;">
-                MIDNIGHT CLUB EXPERIENCE
+              <p style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #9CA3AF !important; -webkit-text-fill-color: #9CA3AF !important; text-align: center;">
+                <span style="color: #9CA3AF !important; -webkit-text-fill-color: #9CA3AF !important;">MIDNIGHT CLUB EXPERIENCE</span>
               </p>
-              <p class="text-[9px] uppercase tracking-wider text-zinc-500" 
-                 style="margin: 0; font-size: 9px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: #52525B; text-align: center;">
-                ACCESO EXCLUSIVO CON DNI &bull; DERECHO DE ADMISIÓN RESERVADO
+              <p style="margin: 0; font-size: 9px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: #52525B !important; -webkit-text-fill-color: #52525B !important; text-align: center;">
+                <span style="color: #52525B !important; -webkit-text-fill-color: #52525B !important;">ACCESO EXCLUSIVO CON DNI &bull; DERECHO DE ADMISIÓN RESERVADO</span>
               </p>
 
             </td>
