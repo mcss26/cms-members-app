@@ -90,6 +90,8 @@
     csvSentCount: document.getElementById("csv-sent-count"),
     csvTotalCount: document.getElementById("csv-total-count"),
     csvProgressBar: document.getElementById("csv-progress-bar"),
+    csvTestEmail: document.getElementById("csvTestEmail"),
+    btnTestCsvCampaign: document.getElementById("btnTestCsvCampaign"),
   };
 
   const ui = { 
@@ -1044,6 +1046,34 @@
     }
   }
 
+  async function executeTestCsvCampaign() {
+    const freeLink = refs.csvFreeLink?.value.trim();
+    const testEmail = refs.csvTestEmail?.value.trim();
+
+    if (!freeLink) {
+      if (window.Toast) window.Toast.warning("Falta el link de la campaña FREE PASS");
+      return;
+    }
+    if (!testEmail) {
+      if (window.Toast) window.Toast.warning("Falta el email de prueba");
+      return;
+    }
+
+    try {
+      if (window.Toast) window.Toast.info("Enviando prueba CSV...");
+      await callBulkCsvEmailFn({
+        isTest: true,
+        testEmail: testEmail,
+        freeLink: freeLink,
+        contacts: []
+      });
+      if (window.Toast) window.Toast.success("Email de prueba CSV enviado exitosamente.");
+    } catch (err) {
+      console.error("Test CSV Campaign Error:", err);
+      if (window.Toast) window.Toast.error("Error: " + err.message);
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // 9. Vista Switching
   // ─────────────────────────────────────────────────────────────────────────
@@ -1145,6 +1175,7 @@
   // Bulk Email
   refs.btnBulkCampaign?.addEventListener("click", executeBulkCampaign);
   refs.btnTestCampaign?.addEventListener("click", executeTestCampaign);
+  refs.btnTestCsvCampaign?.addEventListener("click", executeTestCsvCampaign);
   if (refs.btnCsvCampaign) {
     refs.btnCsvCampaign.addEventListener("click", () => executeCsvCampaign());
   }

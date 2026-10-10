@@ -232,10 +232,13 @@
                   <button id="btnBulkCampaign" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR</button>
                 </div>
 
-                <!-- Hidden Test Elements to prevent JS errors -->
-                <div class="hidden">
-                  <input type="email" id="bulkTestEmail" value="test@test.com">
-                  <button id="btnTestCampaign"></button>
+                <!-- Test Campaign Elements -->
+                <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 24px; max-width: 500px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">EMAIL DE PRUEBA</label>
+                    <input type="email" id="bulkTestEmail" class="input" placeholder="tu@email.com" style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                  </div>
+                  <button id="btnTestCampaign" class="btn-secondary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR TEST</button>
                 </div>
 
                 <div id="bulk-progress-container" style="display: none; border-top: 1px solid var(--neutral-800); padding-top: 24px; background: transparent;">
@@ -278,6 +281,15 @@
                   </div>
 
                   <button id="btnCsvCampaign" class="btn-primary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR CSV</button>
+                </div>
+
+                <!-- Test Campaign Elements -->
+                <div style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 24px; max-width: 500px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <label class="summary-metric-label">EMAIL DE PRUEBA</label>
+                    <input type="email" id="csvTestEmail" class="input" placeholder="tu@email.com" style="border-radius: 0; border: 1px solid var(--neutral-600); background: transparent; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; height: 40px; width: 100%;">
+                  </div>
+                  <button id="btnTestCsvCampaign" class="btn-secondary" style="border-radius: 0; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; height: 40px; padding: 0 32px; white-space: nowrap;">ENVIAR TEST</button>
                 </div>
 
                 <div id="csv-progress-container" style="display: none; border-top: 1px solid var(--neutral-800); padding-top: 24px; background: transparent;">

@@ -31,9 +31,7 @@ interface BulkEmailRequest {
 }
 
 // Generador del HTML de la plantilla
-function generateEmailHtml(nombre: string, freeLink: string, priorityLink: string): string {
-  const firstName = nombre ? nombre.trim().split(/\s+/)[0] : "Miembro";
-  
+function generateEmailHtml(freeLink: string, priorityLink: string): string {
   return `
 <!DOCTYPE html>
 <html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -195,7 +193,6 @@ function generateEmailHtml(nombre: string, freeLink: string, priorityLink: strin
               </h1>
 
               <!-- Dynamic Exclusive Member Badge -->
-              <!-- Variable: ${firstName.toUpperCase()} -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 16px auto 0;">
                 <tr>
                   <td class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-750 bg-zinc-900/90 shadow-sm" 
@@ -384,7 +381,7 @@ serve(async (req) => {
         return jsonResponse({ error: "Email de prueba requerido" }, 400);
       }
 
-      const html = generateEmailHtml("Test", freeLink, priorityLink);
+      const html = generateEmailHtml(freeLink, priorityLink);
 
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -457,7 +454,7 @@ serve(async (req) => {
         from: "Midnight Club <noreply@midnightclub.com.ar>",
         to: m.email.trim(),
         subject: "Invitación Exclusiva - Midnight Club",
-        html: generateEmailHtml(m.nombre, freeLink, priorityLink),
+        html: generateEmailHtml(freeLink, priorityLink),
       };
     });
 

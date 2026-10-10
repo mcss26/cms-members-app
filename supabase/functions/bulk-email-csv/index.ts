@@ -28,18 +28,7 @@ interface BulkEmailCsvRequest {
 }
 
 // Generador del HTML de la plantilla
-function generateEmailHtml(nombre: string, freeLink: string): string {
-  // Aseguramos capturar única y exclusivamente el PRIMER NOMBRE, y que esté en Title Case
-  let firstName = "Miembro";
-  if (nombre && typeof nombre === 'string') {
-    const rawFirst = nombre.trim().split(/\s+/)[0];
-    if (rawFirst.length > 1) {
-      firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
-    } else {
-      firstName = rawFirst.toUpperCase();
-    }
-  }
-
+function generateEmailHtml(freeLink: string): string {
   const descriptionText = "¡Felicidades! Recibiste una invitación MEMBER FREE PASS para este sábado. ¡Te esperamos!";
   const ctaText = "OBTENER MEMBER FREE PASS";
   const footerText = "VÁLIDO HASTA LAS 2:00. SUJETO A CAPACIDAD.";
@@ -200,7 +189,6 @@ function generateEmailHtml(nombre: string, freeLink: string): string {
               </h1>
 
               <!-- Dynamic Exclusive Member Badge -->
-              <!-- Variable: ${firstName.toUpperCase()} -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 16px auto 0;">
                 <tr>
                   <td class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-750 bg-zinc-900/90 shadow-sm" 
@@ -344,7 +332,7 @@ serve(async (req) => {
         return jsonResponse({ error: "Email de prueba requerido" }, 400);
       }
 
-      const html = generateEmailHtml("Test", freeLink);
+      const html = generateEmailHtml(freeLink);
 
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -388,7 +376,7 @@ serve(async (req) => {
             from: "Midnight Club <noreply@midnightclub.com.ar>",
             to: validEmail,
             subject: "Invitación Exclusiva - Midnight Club",
-            html: generateEmailHtml(c.nombre || "Miembro", freeLink)
+            html: generateEmailHtml(freeLink)
         };
     }).filter(e => e !== null);
 
